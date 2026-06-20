@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using AppComposer.ViewModels;
 using AppComposer.Views;
+using AppComposer.Services;
 
 
 namespace AppComposer
@@ -10,6 +11,8 @@ namespace AppComposer
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            ConfigurationService.Initialize("../../../config.ini");
 
             MainWindowViewModel mainWindowVM = new();
 

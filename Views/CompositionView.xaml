@@ -5,26 +5,72 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AppComposer.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="500" d:DesignWidth="800">
 
-    <Canvas Background="#525252">
+    <Grid Background="#525252">
 
-        <TextBlock Text="Composer" Canvas.Left="27" Canvas.Top="18"/>
+        <Button Content="Home"
+                Command="{Binding ShowHomeCommand}"
+                Width="40"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,5,5,0"/>
 
-        <Border
-            Width="649"
-            Height="346"
-            BorderBrush="Black"
+        <Button Content="New Comp"
+                Command="{Binding NewCompositionCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="20,10,0,0"/>
+
+        <Button Content="Load Comp"
+                Command="{Binding LoadCompositionCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="110,10,0,0" />
+
+        <Button Content="Save Comp"
+                Command="{Binding SaveCompositionCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="200,10,0,0" />
+
+        <Button Content="Add Image"
+                Command="{Binding AddImageCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,50,20,0"/>
+
+        <Button Content="Add Text"
+                Command="{Binding AddTextCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,90,20,0" />
+
+        <Border BorderBrush="Black"
             BorderThickness="1"
-            Background="LightGray" Canvas.Left="27" Canvas.Top="52" HorizontalAlignment="Left" VerticalAlignment="Center">
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Margin="20,0,0,20">
 
-            <Canvas>
-
-            </Canvas>
+            <Canvas 
+                    Width="{Binding CurrentCanvasSettings.Width}"
+                    Height="{Binding CurrentCanvasSettings.Height}"
+                    Background="LightGray"/>
 
         </Border>
 
-        <Button Content="Home"
-                Command="{Binding ShowHomeCommand}" Canvas.Left="732" Canvas.Top="24" />
-    </Canvas>
+
+
+    </Grid>
 </UserControl>
