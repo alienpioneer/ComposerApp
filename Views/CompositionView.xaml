@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AppComposer.Views"
+             xmlns:vm="clr-namespace:AppComposer.ViewModels.Composition"
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="800">
 
@@ -57,20 +58,58 @@
                 VerticalAlignment="Top"
                 Margin="0,90,20,0" />
 
+        <Button Content="Remove"
+                Command="{Binding RemoveLayerCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,129,20,0" />
+
         <Border BorderBrush="Black"
-            BorderThickness="1"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
-            Margin="20,0,0,20">
+                BorderThickness="1"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="20,0,0,20">
 
             <Canvas 
                     Width="{Binding CurrentCanvasSettings.Width}"
                     Height="{Binding CurrentCanvasSettings.Height}"
-                    Background="LightGray"/>
+                    Background="LightGray">
 
+                <ItemsControl ItemsSource="{Binding CurrentPageVM.Layers}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding Layer.PosX}" />
+                            <Setter Property="Canvas.Top" Value="{Binding Layer.PosY}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.Resources>
+                        
+                        <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
+                            <Rectangle  Width="{Binding Layer.Width}"
+                                        Height="{Binding Layer.Height}"
+                                        Fill="DarkGray"
+                                        Stroke="Black"/>
+                        </DataTemplate>
+
+                        <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
+                            <TextBlock Text="{Binding Layer.Text}"
+                                       FontFamily="{Binding Layer.FontName}"
+                                       FontSize="{Binding Layer.FontSize}"/>
+                        </DataTemplate>
+                        
+                    </ItemsControl.Resources>
+                </ItemsControl>
+            </Canvas>
         </Border>
-
-
 
     </Grid>
 </UserControl>

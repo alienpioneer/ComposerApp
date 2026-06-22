@@ -12,6 +12,7 @@ namespace AppComposer
         {
             base.OnStartup(e);
 
+            // Initialize the configuration service FIRST with the path to the config.ini file
             ConfigurationService.Initialize("../../../config.ini");
 
             MainWindowViewModel mainWindowVM = new();

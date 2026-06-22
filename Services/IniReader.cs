@@ -56,7 +56,7 @@ namespace AppComposer.Services
             }
         }
 
-        public string GetValue(string section, string key, string defaultValue = null)
+        public string GetValue(string section, string key, string defaultValue = "")
         {
             if (_data.TryGetValue(section, out var sectionData) && sectionData.TryGetValue(key, out var value))
                 return value;

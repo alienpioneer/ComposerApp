@@ -1,12 +1,10 @@
-﻿using System;
+﻿using System.Diagnostics;
 
 namespace AppComposer.Models
 {
     public class LayerBase
     {
-        public string Name { get; set; }
-
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         public int PosX { get; set; }
         public int PosY { get; set; }
@@ -19,9 +17,10 @@ namespace AppComposer.Models
 
         public bool IsVisible { get; set; } = true;
 
-        public LayerBase(string name)
+        public LayerBase()
         {
-            Name = name;
+            Id = Guid.NewGuid();
+            Debug.WriteLine($"Layer created with ID: {Id}");
         }
       
     }

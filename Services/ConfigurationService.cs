@@ -5,6 +5,7 @@ namespace AppComposer.Services
     public sealed class ConfigurationService
     {
         public static ConfigurationService Instance { get; private set; } = null!;
+
         public int CanvasWidth { get; }
         public int CanvasHeight { get; }
 

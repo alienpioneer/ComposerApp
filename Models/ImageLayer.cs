@@ -2,11 +2,11 @@
 
 namespace AppComposer.Models
 {
-    class ImageLayer: LayerBase
+    public class ImageLayer: LayerBase
     {
         public string ImagePath { get; set; }
 
-        public ImageLayer(string imagePath): base("Image Layer")
+        public ImageLayer(string imagePath): base()
         {
             ImagePath = imagePath;
         }

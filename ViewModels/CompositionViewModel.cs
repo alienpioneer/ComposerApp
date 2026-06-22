@@ -1,6 +1,7 @@
 using AppComposer.Commands;
 using AppComposer.Models;
 using AppComposer.Services;
+using AppComposer.ViewModels.Composition;
 using System.Windows.Input;
 using System.Diagnostics;
 
@@ -16,8 +17,9 @@ namespace AppComposer.ViewModels
         public ICommand LoadCompositionCommand { get; }
         public ICommand AddImageCommand { get; }
         public ICommand AddTextCommand { get; }
+        public ICommand RemoveLayerCommand { get; }
 
-        public CompositionPage? CurrentPage { get; private set; }
+        public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
 
         public CompositionViewModel(MainWindowViewModel mainWindowViewModel)
@@ -27,28 +29,34 @@ namespace AppComposer.ViewModels
             CurrentCanvasSettings = new CanvasSettings();
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
-            // TODO Get canvas settings from user preferences or default settings
 
             ShowHomeCommand = new RelayCommand(() => m_mainWindowViewModel.ShowHome(), () => true);
-            NewCompositionCommand = new RelayCommand(CreateNewComposition, () => true);
+            NewCompositionCommand = new RelayCommand(NewComposition, () => true);
             SaveCompositionCommand = new RelayCommand(SaveComposition, () => true);
             LoadCompositionCommand = new RelayCommand(LoadComposition, () => true);
-            AddImageCommand = new RelayCommand(AddImage, () => CurrentPage != null);
-            AddTextCommand = new RelayCommand(AddText, () => CurrentPage != null);
+            AddImageCommand = new RelayCommand(AddImage, () => CurrentPageVM != null);
+            AddTextCommand = new RelayCommand(AddText, () => CurrentPageVM != null);
+            RemoveLayerCommand = new RelayCommand(RemoveLayer, () => CurrentPageVM != null);
+
+            NewComposition();
         }
 
-        private void CreateNewComposition()
+        private void NewComposition()
         {
-            Debug.WriteLine("Create new composition");
-            CurrentPage = new CompositionPage(CurrentCanvasSettings);
-            OnPropertyChanged(nameof(CurrentPage));
+            Debug.WriteLine("New composition");
+
+            CurrentPageVM = new CompositionPageViewModel(CurrentCanvasSettings);
+
+            OnPropertyChanged(nameof(CurrentPageVM));
+
+            // TODO: Add logic to initialize a new composition page, e.g., clear existing layers, reset settings, etc.
         }
 
         private void SaveComposition()
         {
             Debug.WriteLine("Save composition");
 
-            if (CurrentPage != null)
+            if (CurrentPageVM != null)
             {
                 // Implement saving logic here
                 // For example, serialize CurrentPage to a file
@@ -66,15 +74,35 @@ namespace AppComposer.ViewModels
         private void AddImage()
         {
             Debug.WriteLine("Add image");
-            // TODO
+
+            // Test only
+            ImageLayer layer = new("");
+            layer.Height = 50;
+            layer.Width = 50;
+            layer.PosX = 10;
+            layer.PosY = 10;
+
+            CurrentPageVM?.AddImageLayer(layer);
         }
 
         private void AddText()
         {
             Debug.WriteLine("Add text");
+
+            // Test only
+            TextLayer layer = new("Test","Cambria",32);
+            layer.PosX = 10;
+            layer.PosY = 60;
+            CurrentPageVM?.AddTextLayer(layer);
+        }
+
+        private void RemoveLayer()
+        {
+            Debug.WriteLine("Remove layer");
             // TODO
+            // select current layer and remove it
+            //CurrentPageVM?.RemoveLayer(layerViewModel);
         }
 
     }
-
 }

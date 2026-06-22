@@ -14,7 +14,6 @@ namespace AppComposer.Models
 
         public bool ShowRulers { get; set; }
 
-
         public CanvasSettings()
         {
             Width = 650;
