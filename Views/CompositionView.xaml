@@ -64,7 +64,23 @@
                 Height="20"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,129,20,0" />
+                Margin="0,130,20,0" />
+
+        <Button Content="Scale"
+                Command="{Binding ScaleLayerCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,170,20,0" />
+
+        <Button Content="Rotate"
+                Command="{Binding RotateLayerCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,210,20,0" />
 
         <Border BorderBrush="Black"
                 BorderThickness="1"
@@ -72,12 +88,16 @@
                 VerticalAlignment="Bottom"
                 Margin="20,0,0,20">
 
-            <Canvas 
+            <Canvas  x:Name="CompositionCanvas"
                     Width="{Binding CurrentCanvasSettings.Width}"
                     Height="{Binding CurrentCanvasSettings.Height}"
-                    Background="LightGray">
+                    Background="LightGray"
+                    MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
+                    MouseMove="Canvas_MouseMove"
+                    MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
 
                 <ItemsControl ItemsSource="{Binding CurrentPageVM.Layers}">
+                    
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas />
@@ -101,9 +121,11 @@
                         </DataTemplate>
 
                         <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
-                            <TextBlock Text="{Binding Layer.Text}"
-                                       FontFamily="{Binding Layer.FontName}"
-                                       FontSize="{Binding Layer.FontSize}"/>
+                            <TextBlock  Text="{Binding Layer.Text}"
+                                        FontFamily="{Binding Layer.FontName}"
+                                        FontSize="{Binding Layer.FontSize}"
+                                        Loaded="TextBlock_Loaded"
+                                        SizeChanged="TextBlock_SizeChanged"/>
                         </DataTemplate>
                         
                     </ItemsControl.Resources>
