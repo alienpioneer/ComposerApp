@@ -22,14 +22,13 @@ namespace AppComposer.ViewModels.Composition
             }
         }
 
-        public ObservableCollection<ViewModelBase> Layers { get; set; }
+        public ObservableCollection<LayerBaseViewModel> Layers { get; set; }
 
-        public ViewModelBase? SelectedLayer { get; set; }
+        public LayerBaseViewModel? SelectedLayer { get; set; } = null;
 
         public CompositionPageViewModel(CanvasSettings canvasSettings)
         {
             m_compositionPage = new CompositionPage(canvasSettings);
-
             Layers = new();
         }
 
@@ -68,6 +67,7 @@ namespace AppComposer.ViewModels.Composition
             }
 
             Layers.Remove(SelectedLayer);
+            SelectedLayer = null;
         }
 
         public void OnMouseDown(Point p)
@@ -85,19 +85,19 @@ namespace AppComposer.ViewModels.Composition
 
         public void OnMouseMove(Point p)
         {
-            if (!m_isMouseDown)
+            if (!m_isMouseDown || SelectedLayer == null)
             {
                 return;
             }
 
-             Debug.WriteLine($"OnMouseMove {p.X} {p.Y}");
+             //Debug.WriteLine($"OnMouseMove {p.X} {p.Y}");
 
             if (SelectedLayer is ImageLayerViewModel imageLayerVM)
             {
                 if (imageLayerVM.Layer != null)
                 {
                     //Debug.WriteLine($"Image Layer selected {p.X} {p.Y}");
-                    imageLayerVM.Layer.UpdatePosition(p);
+                    imageLayerVM.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
                 }
             }
             else if (SelectedLayer is TextLayerViewModel textLayerVM)
@@ -105,34 +105,59 @@ namespace AppComposer.ViewModels.Composition
                 if (textLayerVM.Layer != null)
                 {
                     //Debug.WriteLine($"Text Layer selected {p.X} {p.Y}");
-                    textLayerVM.Layer.UpdatePosition(p);
+                    textLayerVM.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
                 }
             }
         }
 
         private void GetMouseSelection(Point p)
         {
-            foreach (ViewModelBase layer in Layers)
+            SelectedLayer = null;
+
+            foreach (var layer in Layers)
             {
-                if (layer is ImageLayerViewModel imageLayerVM)
+                layer.IsSelected = false;
+            }
+
+            // Start in Z order with the top layers
+            for (int i = Layers.Count - 1; i >= 0; --i)
+            {
+                if (Layers.ElementAt(i) is ImageLayerViewModel imageLayerVM)
                 {
-                    if (imageLayerVM.Layer != null && CheckLayerSelection(imageLayerVM.Layer, p))
+                    if (imageLayerVM.Layer != null &&
+                        CheckLayerSelection(imageLayerVM.Layer, p))
                     {
                         //Debug.WriteLine($"Image Layer selected {p.X} {p.Y}");
                         SelectedLayer = imageLayerVM;
                         imageLayerVM.Layer.OffsetX = (int)p.X - imageLayerVM.Layer.PosX;
                         imageLayerVM.Layer.OffsetY = (int)p.Y - imageLayerVM.Layer.PosY;
+                        imageLayerVM.IsSelected = true;
+                        break;
                     }
                 }
-                else if (layer is TextLayerViewModel textLayerVM)
+                else if (Layers.ElementAt(i) is TextLayerViewModel textLayerVM)
                 {
-                    if (textLayerVM.Layer != null && CheckLayerSelection(textLayerVM.Layer, p))
+                    if (textLayerVM.Layer != null &&
+                        CheckLayerSelection(textLayerVM.Layer, p))
                     {
                         //Debug.WriteLine($"Text Layer selected {p.X} {p.Y}");
                         SelectedLayer = textLayerVM;
                         textLayerVM.Layer.OffsetX = (int)p.X - textLayerVM.Layer.PosX;
                         textLayerVM.Layer.OffsetY = (int)p.Y - textLayerVM.Layer.PosY;
+                        textLayerVM.IsSelected = true;
+                        break;
                     }
+                }
+            }
+
+            // Move it to Z front
+            if (SelectedLayer != null)
+            {
+                int index = Layers.IndexOf(SelectedLayer);
+
+                if (index >= 0)
+                {
+                    Layers.Move(index, Layers.Count - 1);
                 }
             }
         }

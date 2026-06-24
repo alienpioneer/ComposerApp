@@ -8,6 +8,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="800">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
     <Grid Background="#525252">
 
         <Button Content="Home"
@@ -97,7 +101,7 @@
                     MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
 
                 <ItemsControl ItemsSource="{Binding CurrentPageVM.Layers}">
-                    
+
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas />
@@ -112,22 +116,27 @@
                     </ItemsControl.ItemContainerStyle>
 
                     <ItemsControl.Resources>
-                        
+
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
                             <Rectangle  Width="{Binding Layer.Width}"
                                         Height="{Binding Layer.Height}"
                                         Fill="DarkGray"
-                                        Stroke="Black"/>
+                                        Stroke="Black"
+                                        StrokeThickness="{Binding BorderThickness}"/>
                         </DataTemplate>
 
                         <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
-                            <TextBlock  Text="{Binding Layer.Text}"
-                                        FontFamily="{Binding Layer.FontName}"
-                                        FontSize="{Binding Layer.FontSize}"
-                                        Loaded="TextBlock_Loaded"
-                                        SizeChanged="TextBlock_SizeChanged"/>
+                            <Border BorderBrush="Black" 
+                                    BorderThickness="{Binding BorderThickness}">
+
+                                <TextBlock  Text="{Binding Layer.Text}"
+                                            FontFamily="{Binding Layer.FontName}"
+                                            FontSize="{Binding Layer.FontSize}"
+                                            Loaded="TextBlock_Loaded"
+                                            SizeChanged="TextBlock_SizeChanged"/>
+                            </Border>
                         </DataTemplate>
-                        
+
                     </ItemsControl.Resources>
                 </ItemsControl>
             </Canvas>

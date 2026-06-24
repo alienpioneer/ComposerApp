@@ -1,10 +1,11 @@
 ﻿using AppComposer.Models;
+using System.ComponentModel;
 
 namespace AppComposer.ViewModels.Composition
 {
-    public class ImageLayerViewModel : ViewModelBase
+    public class ImageLayerViewModel : LayerBaseViewModel
     {
-        public ImageLayer? Layer { get; set; }
+        public ImageLayer Layer { get; set; }
 
         public ImageLayerViewModel()
         {
@@ -15,5 +16,6 @@ namespace AppComposer.ViewModels.Composition
         {
             Layer = imageLayer;
         }
+
     }
 }

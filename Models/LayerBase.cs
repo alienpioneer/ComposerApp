@@ -11,13 +11,11 @@ namespace AppComposer.Models
 
         public Guid Id { get; set; }
 
-        public int OffsetX { get; set; }
-        public int OffsetY { get; set; }
-
         private int m_posX;
         private int m_posY;
         private double m_rotation;
-        private double m_scle;
+        private double m_scale;
+        private bool m_isVisible = false;
 
         public int PosX
         {
@@ -39,14 +37,20 @@ namespace AppComposer.Models
 
         public double Scale 
         {
-            get => m_rotation;
-            set => SetProperty(ref m_rotation, value);
+            get => m_scale;
+            set => SetProperty(ref m_scale, value);
         }
 
         public int Height { get; set; }
         public int Width { get; set; }
+        public int OffsetX { get; set; }
+        public int OffsetY { get; set; }
 
-        public bool IsVisible { get; set; } = true;
+        public bool IsVisible
+        {
+            get => m_isVisible;
+            set => SetProperty(ref m_isVisible, value);
+        }
 
         public LayerBase()
         {
@@ -55,10 +59,10 @@ namespace AppComposer.Models
             Debug.WriteLine($"Layer created with ID: {Id}");
         }
       
-        public void UpdatePosition(Point p)
+        public void UpdatePosition(Point p, int canvasWidth, int canvasHeight)
         {
-            PosX = (int)p.X-OffsetX;
-            PosY = (int)p.Y-OffsetY;
+            PosX = Math.Clamp((int)p.X-OffsetX, 0, canvasWidth-Width);
+            PosY = Math.Clamp((int)p.Y-OffsetY, 0, canvasHeight-Height);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

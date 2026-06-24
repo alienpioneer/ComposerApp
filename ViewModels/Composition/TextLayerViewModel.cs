@@ -1,10 +1,11 @@
 ﻿using AppComposer.Models;
+using System.ComponentModel;
 
 namespace AppComposer.ViewModels.Composition
 {
-    public class TextLayerViewModel : ViewModelBase
+    public class TextLayerViewModel : LayerBaseViewModel
     {
-        public TextLayer? Layer { get; set; }
+        public TextLayer Layer { get; set; }
 
         public TextLayerViewModel()
         {
