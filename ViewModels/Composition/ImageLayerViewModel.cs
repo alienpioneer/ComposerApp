@@ -5,16 +5,10 @@ namespace AppComposer.ViewModels.Composition
 {
     public class ImageLayerViewModel : LayerBaseViewModel
     {
-        public ImageLayer Layer { get; set; }
+        public ImageLayer ImageLayer => (ImageLayer)Layer;
 
-        public ImageLayerViewModel()
+        public ImageLayerViewModel(ImageLayer layer) : base(layer)
         {
-            Layer = new("");
-        }
-
-        public ImageLayerViewModel(ImageLayer imageLayer)
-        {
-            Layer = imageLayer;
         }
 
     }

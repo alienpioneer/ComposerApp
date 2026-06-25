@@ -51,21 +51,7 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            if (SelectedLayer is ImageLayerViewModel selectedImageLayerVM)
-            {
-                if (selectedImageLayerVM.Layer != null)
-                {
-                    CompositionPage.Layers.Remove(selectedImageLayerVM.Layer);
-                }
-            }
-            else if (SelectedLayer is TextLayerViewModel selectedTextLayerVM)
-            {
-                if (selectedTextLayerVM.Layer != null)
-                {
-                    CompositionPage.Layers.Remove(selectedTextLayerVM.Layer);
-                }
-            }
-
+            CompositionPage.Layers.Remove(SelectedLayer.Layer);
             Layers.Remove(SelectedLayer);
             SelectedLayer = null;
         }
@@ -104,11 +90,13 @@ namespace AppComposer.ViewModels.Composition
 
         private void GetMouseSelection(Point p)
         {
+            // Check for scale mode
             if (CheckScaleSelection(p))
             {
                 return;
             }
 
+            // Pass in new selection mode
             SwitchToScaleMode(false);
             SelectedLayer = null;
 
@@ -120,32 +108,18 @@ namespace AppComposer.ViewModels.Composition
             // Start in Z order with the top layers
             for (int i = Layers.Count - 1; i >= 0; --i)
             {
-                if (Layers.ElementAt(i) is ImageLayerViewModel imageLayerVM)
+
+                if (Layers.ElementAt(i).Layer != null &&
+                    CheckLayerSelection(Layers.ElementAt(i).Layer, p))
                 {
-                    if (imageLayerVM.Layer != null &&
-                        CheckLayerSelection(imageLayerVM.Layer, p))
-                    {
-                        //Debug.WriteLine($"Image Layer selected {p.X} {p.Y}");
-                        SelectedLayer = imageLayerVM;
-                        imageLayerVM.Layer.OffsetX = (int)p.X - imageLayerVM.Layer.PosX;
-                        imageLayerVM.Layer.OffsetY = (int)p.Y - imageLayerVM.Layer.PosY;
-                        imageLayerVM.IsSelected = true;
-                        break;
-                    }
+                    SelectedLayer = Layers.ElementAt(i);
+                    Layers.ElementAt(i).Layer.OffsetX = (int)p.X - Layers.ElementAt(i).Layer.PosX;
+                    Layers.ElementAt(i).Layer.OffsetY = (int)p.Y - Layers.ElementAt(i).Layer.PosY;
+                    Layers.ElementAt(i).IsSelected = true;
+                    break;
                 }
-                else if (Layers.ElementAt(i) is TextLayerViewModel textLayerVM)
-                {
-                    if (textLayerVM.Layer != null &&
-                        CheckLayerSelection(textLayerVM.Layer, p))
-                    {
-                        //Debug.WriteLine($"Text Layer selected {p.X} {p.Y}");
-                        SelectedLayer = textLayerVM;
-                        textLayerVM.Layer.OffsetX = (int)p.X - textLayerVM.Layer.PosX;
-                        textLayerVM.Layer.OffsetY = (int)p.Y - textLayerVM.Layer.PosY;
-                        textLayerVM.IsSelected = true;
-                        break;
-                    }
-                }
+
+                //Debug.WriteLine($"Layer selected {SelectedLayer?.Layer.Id}");
             }
 
             // Move it to Z front
@@ -184,19 +158,16 @@ namespace AppComposer.ViewModels.Composition
                 return result;
             }
 
-            if (SelectedLayer is ImageLayerViewModel imglayer)
-            {
-                int scaleGizmoStartX = imglayer.Layer.PosX + imglayer.Layer.Width;
-                int scaleGizmoStartY = imglayer.Layer.PosY + imglayer.Layer.Height;
+            int scaleGizmoStartX = SelectedLayer.Layer.PosX + SelectedLayer.Layer.Width;
+            int scaleGizmoStartY = SelectedLayer.Layer.PosY + SelectedLayer.Layer.Height;
 
-                if ( p.X >= scaleGizmoStartX &&
-                    p.X <= (scaleGizmoStartX + imglayer.ScaleGizmoSize) &&
-                    p.Y >= scaleGizmoStartY &&
-                    p.Y <= (scaleGizmoStartY + imglayer.ScaleGizmoSize))
-                {
-                    //Debug.WriteLine($"Scale Gizmo selected");
-                    result = true;
-                }
+            if ( p.X >= scaleGizmoStartX &&
+                p.X <= (scaleGizmoStartX + SelectedLayer.ScaleGizmoSize) &&
+                p.Y >= scaleGizmoStartY &&
+                p.Y <= (scaleGizmoStartY + SelectedLayer.ScaleGizmoSize))
+            {
+                //Debug.WriteLine($"Scale Gizmo selected");
+                result = true;
             }
 
             return result;
@@ -214,27 +185,23 @@ namespace AppComposer.ViewModels.Composition
 
         public void ScaleSelectedLayer(Point p)
         {
+            if (SelectedLayer == null || !SelectedLayer.IsScaleMode)
+            {
+                return;
+            }
+
             Debug.WriteLine($"ScaleSelectedLayer()");
         }
 
         public void MoveSelectedLayer(Point p)
         {
-            if (SelectedLayer is ImageLayerViewModel imageLayerVM)
+            if (SelectedLayer == null || SelectedLayer.IsScaleMode)
             {
-                if (imageLayerVM.Layer != null)
-                {
-                    //Debug.WriteLine($"Image Layer selected {p.X} {p.Y}");
-                    imageLayerVM.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
-                }
+                return;
             }
-            else if (SelectedLayer is TextLayerViewModel textLayerVM)
-            {
-                if (textLayerVM.Layer != null)
-                {
-                    //Debug.WriteLine($"Text Layer selected {p.X} {p.Y}");
-                    textLayerVM.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
-                }
-            }
+
+            //Debug.WriteLine($"MoveSelectedLayer {p.X} {p.Y}");
+            SelectedLayer.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
         }
     }
 }
