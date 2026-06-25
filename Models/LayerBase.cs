@@ -11,11 +11,13 @@ namespace AppComposer.Models
 
         public Guid Id { get; set; }
 
-        private int m_posX;
-        private int m_posY;
-        private double m_rotation;
-        private double m_scale;
-        private bool m_isVisible = false;
+        private int m_posX = 0;
+        private int m_posY = 0;
+        private int m_width = 0;
+        private int m_height = 0;
+        private double m_rotation = 0.0;
+        private double m_scale = 1.0;
+        private bool m_isVisible = true;
 
         public int PosX
         {
@@ -41,8 +43,18 @@ namespace AppComposer.Models
             set => SetProperty(ref m_scale, value);
         }
 
-        public int Height { get; set; }
-        public int Width { get; set; }
+        public int Height
+        {
+            get => m_height;
+            set => SetProperty(ref m_height, value);
+        }
+
+        public int Width
+        {
+            get => m_width;
+            set => SetProperty(ref m_width, value);
+        }
+
         public int OffsetX { get; set; }
         public int OffsetY { get; set; }
 

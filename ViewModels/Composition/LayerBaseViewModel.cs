@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AppComposer.ViewModels.Composition
 {
     public class LayerBaseViewModel : ViewModelBase
     {
         private bool m_isSelected = false;
+        private bool m_isScaleMode = false;
 
         public bool IsSelected
         {
@@ -23,7 +25,25 @@ namespace AppComposer.ViewModels.Composition
             }
         }
 
-        public int BorderThickness => IsSelected ? 1 : 0;
+        public bool IsScaleMode
+        {
+            get => m_isScaleMode;
+            set
+            {
+                if (m_isScaleMode != value)
+                {
+                    m_isScaleMode = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(BorderThickness));
+                }
+            }
+        }
+
+        public int BorderThickness => (IsSelected && !IsScaleMode) ? 1 : 0;
+
+        // TODO Get from config
+        public int ScaleGizmoSize { get; set; } = 14;
+        public Thickness ScaleGizmoMargin => new Thickness(0, 0, -ScaleGizmoSize + 1, -ScaleGizmoSize + 1);
 
         public LayerBaseViewModel()
         { }

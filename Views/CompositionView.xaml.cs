@@ -55,7 +55,7 @@ namespace AppComposer.Views
             }
         }
 
-        private void TextBlock_SizeChanged(object sender, RoutedEventArgs e)
+        private void TextBlock_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (sender is TextBlock textBlock)
             {

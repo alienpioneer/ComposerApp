@@ -108,8 +108,9 @@ namespace AppComposer.ViewModels
 
         private void ScaleLayer()
         {
-            Debug.WriteLine("Scale layer");
+            Debug.WriteLine("Scale Mode");
             // Implement scaling logic here
+            CurrentPageVM?.SwitchToScaleMode(true);
         }
 
         private void RotateLayer()

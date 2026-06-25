@@ -4,24 +4,18 @@ namespace AppComposer.Models
 {
     public class CanvasSettings
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; set; } = 650;
+        public int Height { get; set; } = 350;
 
-        public string BackgroundColor { get; set; }
+        public string BackgroundColor { get; set; } = "#FFFFFF";
 
-        public bool ShowGrid { get; set; }
-        public int GridSize { get; set; }
+        public bool ShowGrid { get; set; } = false;
+        public int GridSize { get; set; } = 20;
 
-        public bool ShowRulers { get; set; }
+        public bool ShowRulers { get; set; } = false;
 
         public CanvasSettings()
         {
-            Width = 650;
-            Height = 350;
-            BackgroundColor = "#FFFFFF"; // Default to white
-            ShowGrid = false;
-            ShowRulers = false;
-            GridSize = 20;
         }
     }
 }

@@ -92,7 +92,7 @@
                 VerticalAlignment="Bottom"
                 Margin="20,0,0,20">
 
-            <Canvas  x:Name="CompositionCanvas"
+            <Canvas x:Name="CompositionCanvas"
                     Width="{Binding CurrentCanvasSettings.Width}"
                     Height="{Binding CurrentCanvasSettings.Height}"
                     Background="LightGray"
@@ -118,23 +118,69 @@
                     <ItemsControl.Resources>
 
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
-                            <Rectangle  Width="{Binding Layer.Width}"
-                                        Height="{Binding Layer.Height}"
-                                        Fill="DarkGray"
-                                        Stroke="Black"
-                                        StrokeThickness="{Binding BorderThickness}"/>
+                            <Grid>
+                                <Rectangle Width="{Binding Layer.Width}"
+                                           Height="{Binding Layer.Height}"
+                                           Fill="DarkGray"
+                                           Stroke="Black"
+                                           StrokeThickness="{Binding BorderThickness}"
+                                           Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/>
+
+                                <Rectangle Width="{Binding Layer.Width}"
+                                           Height="{Binding Layer.Height}"
+                                           Fill="Transparent"
+                                           Stroke="Red"
+                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+
+                                <Rectangle Width="{Binding ScaleGizmoSize}"
+                                           Height="{Binding ScaleGizmoSize}"
+                                           Fill="Red"
+                                           Stroke="Red"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom"
+                                           Margin="{Binding ScaleGizmoMargin}"
+                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+
+                                <Grid.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform  ScaleX="{Binding Layer.Scale}"
+                                                         ScaleY="{Binding Layer.Scale}"/>
+                                        <RotateTransform Angle="{Binding Layer.Rotation}" />
+                                    </TransformGroup>
+                                </Grid.RenderTransform>
+
+                            </Grid>
                         </DataTemplate>
 
                         <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
-                            <Border BorderBrush="Black" 
-                                    BorderThickness="{Binding BorderThickness}">
+                            <Grid>
+                                <Border BorderBrush="Black" 
+                                        BorderThickness="{Binding BorderThickness}"
+                                        Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}">
 
-                                <TextBlock  Text="{Binding Layer.Text}"
-                                            FontFamily="{Binding Layer.FontName}"
-                                            FontSize="{Binding Layer.FontSize}"
-                                            Loaded="TextBlock_Loaded"
-                                            SizeChanged="TextBlock_SizeChanged"/>
-                            </Border>
+                                    <TextBlock  Text="{Binding Layer.Text}"
+                                                FontFamily="{Binding Layer.FontName}"
+                                                FontSize="{Binding Layer.FontSize}"
+                                                Loaded="TextBlock_Loaded"
+                                                SizeChanged="TextBlock_SizeChanged"/>
+                                </Border>
+
+                                <Rectangle Width="{Binding Layer.Width}"
+                                           Height="{Binding Layer.Height}"
+                                           Fill="Transparent"
+                                           Stroke="Red"
+                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+
+                                <Rectangle Width="{Binding ScaleGizmoSize}"
+                                           Height="{Binding ScaleGizmoSize}"
+                                           Fill="Transparent"
+                                           Stroke="Red"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Bottom"
+                                           Margin="{Binding ScaleGizmoMargin}"
+                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+                                
+                            </Grid>
                         </DataTemplate>
 
                     </ItemsControl.Resources>
