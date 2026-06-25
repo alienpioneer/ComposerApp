@@ -139,9 +139,9 @@ namespace AppComposer.ViewModels.Composition
             bool result = false;
 
             if ((layer.PosX <= p.X) &&
-                (p.X <= (layer.PosX + layer.Width)) &&
+                (p.X <= (layer.PosX + layer.Width*layer.Scale)) &&
                 (layer.PosY <= p.Y) &&
-                (p.Y <= (layer.PosY + layer.Height)))
+                (p.Y <= (layer.PosY + layer.Height * layer.Scale)))
             {
                 result = true;
             }
@@ -158,8 +158,8 @@ namespace AppComposer.ViewModels.Composition
                 return result;
             }
 
-            int scaleGizmoStartX = SelectedLayer.Layer.PosX + SelectedLayer.Layer.Width;
-            int scaleGizmoStartY = SelectedLayer.Layer.PosY + SelectedLayer.Layer.Height;
+            int scaleGizmoStartX = SelectedLayer.Layer.PosX + (int)(SelectedLayer.Layer.Width * SelectedLayer.Layer.Scale);
+            int scaleGizmoStartY = SelectedLayer.Layer.PosY + (int)(SelectedLayer.Layer.Height * SelectedLayer.Layer.Scale);
 
             if ( p.X >= scaleGizmoStartX &&
                 p.X <= (scaleGizmoStartX + SelectedLayer.ScaleGizmoSize) &&
@@ -190,7 +190,14 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            Debug.WriteLine($"ScaleSelectedLayer()");
+            //Debug.WriteLine($"ScaleSelectedLayer()");
+
+            double dx = p.X - SelectedLayer.Layer.PosX;
+            double dy = p.Y - SelectedLayer.Layer.PosY;
+
+            double scale = (dx * SelectedLayer.Layer.Width + dy * SelectedLayer.Layer.Height) / (SelectedLayer.Layer.Width * SelectedLayer.Layer.Width + SelectedLayer.Layer.Height * SelectedLayer.Layer.Height);
+
+            SelectedLayer.Layer.Scale = Math.Max(0.05, scale);
         }
 
         public void MoveSelectedLayer(Point p)
@@ -201,7 +208,7 @@ namespace AppComposer.ViewModels.Composition
             }
 
             //Debug.WriteLine($"MoveSelectedLayer {p.X} {p.Y}");
-            SelectedLayer.Layer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
+            SelectedLayer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
         }
     }
 }

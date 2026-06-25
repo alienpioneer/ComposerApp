@@ -13,10 +13,13 @@ namespace AppComposer.Models
 
         private int m_posX = 0;
         private int m_posY = 0;
+
         private int m_width = 0;
         private int m_height = 0;
+
         private double m_rotation = 0.0;
         private double m_scale = 1.0;
+
         private bool m_isVisible = true;
 
         public int PosX
@@ -69,12 +72,6 @@ namespace AppComposer.Models
             Id = Guid.NewGuid();
 
             Debug.WriteLine($"Layer created with ID: {Id}");
-        }
-      
-        public void UpdatePosition(Point p, int canvasWidth, int canvasHeight)
-        {
-            PosX = Math.Clamp((int)p.X-OffsetX, 0, canvasWidth-Width);
-            PosY = Math.Clamp((int)p.Y-OffsetY, 0, canvasHeight-Height);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
