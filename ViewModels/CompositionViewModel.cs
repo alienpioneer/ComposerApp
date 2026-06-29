@@ -20,6 +20,7 @@ namespace AppComposer.ViewModels
         public ICommand RemoveLayerCommand { get; }
         public ICommand ScaleLayerCommand { get; }
         public ICommand RotateLayerCommand { get; }
+        public ICommand ResetLayerCommand { get; }
 
         public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
@@ -41,6 +42,7 @@ namespace AppComposer.ViewModels
             RemoveLayerCommand = new RelayCommand(RemoveLayer, () => CurrentPageVM != null);
             ScaleLayerCommand = new RelayCommand(ScaleLayer, () => CurrentPageVM != null);
             RotateLayerCommand = new RelayCommand(RotateLayer, () => CurrentPageVM != null);
+            ResetLayerCommand = new RelayCommand(ResetLayer, () => CurrentPageVM != null);
 
             NewComposition();
         }
@@ -82,7 +84,7 @@ namespace AppComposer.ViewModels
             // Test only
             ImageLayer layer = new("");
             layer.Height = 50;
-            layer.Width = 50;
+            layer.Width = 70;
             layer.PosX = 10;
             layer.PosY = 10;
 
@@ -109,14 +111,19 @@ namespace AppComposer.ViewModels
         private void ScaleLayer()
         {
             Debug.WriteLine("Scale Mode");
-            // Implement scaling logic here
             CurrentPageVM?.SwitchToScaleMode(true);
         }
 
         private void RotateLayer()
         {
             Debug.WriteLine("Rotate layer");
-            // Implement rotation logic here
+            CurrentPageVM?.RotateSelectedLayer();
+        }
+
+        private void ResetLayer()
+        {
+            Debug.WriteLine("Reset layer");
+            CurrentPageVM?.ResetSelectedLayer();
         }
 
     }

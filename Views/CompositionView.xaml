@@ -86,8 +86,17 @@
                 VerticalAlignment="Top"
                 Margin="0,210,20,0" />
 
+        <Button Content="Reset"
+                Command="{Binding ResetLayerCommand}"
+                Width="70"
+                Height="20"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,250,20,0" />
+
         <Border BorderBrush="Black"
                 BorderThickness="1"
+                ClipToBounds="True"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
                 Margin="20,0,0,20">
@@ -116,10 +125,17 @@
                     </ItemsControl.ItemContainerStyle>
 
                     <ItemsControl.Resources>
-
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
                             <Grid>
-                                <Rectangle  Width="{Binding Layer.Width}"
+                                <Rectangle  Stroke="Lime"
+                                            StrokeThickness="1"
+                                            StrokeDashArray="3 2"
+                                            Fill="Transparent"
+                                            IsHitTestVisible="False"
+                                            Panel.ZIndex="999" />
+                                            
+                                <Rectangle  Name="MainLayer"
+                                            Width="{Binding Layer.Width}"
                                             Height="{Binding Layer.Height}"
                                             Fill="DarkGray"
                                             Stroke="Black"
@@ -133,14 +149,20 @@
                                     <Rectangle.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform ScaleX="{Binding Layer.Scale}"
-                                                            ScaleY="{Binding Layer.Scale}"/>
-                                            <RotateTransform Angle="{Binding Layer.Rotation}" />
+                                                            ScaleY="{Binding Layer.Scale}"
+                                                            CenterX="0"
+                                                            CenterY="0"/>
+                                            
+                                            <RotateTransform Angle="{Binding Layer.Rotation}"
+                                                             CenterX="{Binding CenterX}"
+                                                             CenterY="{Binding CenterY}"/>
                                         </TransformGroup>
                                     </Rectangle.RenderTransform>
 
                                 </Rectangle>
 
-                                <Rectangle Width="{Binding ScaledWidth}"
+                                <Rectangle Name="ScaleRectangle"
+                                           Width="{Binding ScaledWidth}"
                                            Height="{Binding ScaledHeight}"
                                            Fill="Transparent"
                                            Stroke="Red"
@@ -155,8 +177,18 @@
                                            Stroke="Red"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Top"
+                                           RenderOptions.EdgeMode="Aliased"
                                            Margin="{Binding ScaleGizmoMargin}"
                                            Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+
+                                <Rectangle Name="Center"
+                                           Width="4"
+                                           Height="4"
+                                           Fill="Red"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           RenderOptions.EdgeMode="Aliased"/>
+
                             </Grid>
                         </DataTemplate>
 
@@ -167,27 +199,32 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Top"
                                         RenderOptions.EdgeMode="Aliased"
+                                        
                                         Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}">
 
                                     <Border.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform ScaleX="{Binding Layer.Scale}"
-                                                            ScaleY="{Binding Layer.Scale}"/>
-                                            <RotateTransform Angle="{Binding Layer.Rotation}" />
+                                                            ScaleY="{Binding Layer.Scale}"
+                                                            CenterX="0"
+                                                            CenterY="0"/>
+                                            
+                                            <RotateTransform Angle="{Binding Layer.Rotation}"
+                                                             CenterX="{Binding CenterX}"
+                                                             CenterY="{Binding CenterY}"/>
                                         </TransformGroup>
                                     </Border.RenderTransform>
 
                                     <TextBlock  Text="{Binding TextLayer.Text}"
                                                 FontFamily="{Binding TextLayer.FontName}"
                                                 FontSize="{Binding TextLayer.FontSize}"
-                                                RenderTransformOrigin="0,0"
                                                 Loaded="TextBlock_Loaded"
                                                 SizeChanged="TextBlock_SizeChanged"/>
 
                                 </Border>
 
-                                    <Rectangle Width="{Binding ScaledWidth}"
-                                           Height="{Binding ScaledHeight}"
+                                    <Rectangle Width="{Binding DisplayWidth}"
+                                           Height="{Binding DisplayHeight}"
                                            Fill="Transparent"
                                            Stroke="Red"
                                            HorizontalAlignment="Left"

@@ -56,6 +56,17 @@ namespace AppComposer.ViewModels.Composition
             SelectedLayer = null;
         }
 
+        public void ResetSelectedLayer()
+        {
+            if (SelectedLayer == null)
+            {
+                return;
+            }
+
+            SelectedLayer.Layer.Rotation = 0.0;
+            SelectedLayer.Layer.Scale = 1.0;
+        }
+
         public void OnMouseDown(Point p)
         {
             Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
@@ -110,7 +121,7 @@ namespace AppComposer.ViewModels.Composition
             {
 
                 if (Layers.ElementAt(i).Layer != null &&
-                    CheckLayerSelection(Layers.ElementAt(i).Layer, p))
+                    Layers.ElementAt(i).CheckSelected(p))
                 {
                     SelectedLayer = Layers.ElementAt(i);
                     Layers.ElementAt(i).Layer.OffsetX = (int)p.X - Layers.ElementAt(i).Layer.PosX;
@@ -134,21 +145,6 @@ namespace AppComposer.ViewModels.Composition
             }
         }
 
-        private bool CheckLayerSelection(LayerBase layer, Point p)
-        {
-            bool result = false;
-
-            if ((layer.PosX <= p.X) &&
-                (p.X <= (layer.PosX + layer.Width*layer.Scale)) &&
-                (layer.PosY <= p.Y) &&
-                (p.Y <= (layer.PosY + layer.Height * layer.Scale)))
-            {
-                result = true;
-            }
-
-            return result;
-        }
-
         private bool CheckScaleSelection(Point p)
         {
             bool result = false;
@@ -158,8 +154,8 @@ namespace AppComposer.ViewModels.Composition
                 return result;
             }
 
-            int scaleGizmoStartX = SelectedLayer.Layer.PosX + (int)(SelectedLayer.Layer.Width * SelectedLayer.Layer.Scale);
-            int scaleGizmoStartY = SelectedLayer.Layer.PosY + (int)(SelectedLayer.Layer.Height * SelectedLayer.Layer.Scale);
+            int scaleGizmoStartX = SelectedLayer.Layer.PosX + (int)SelectedLayer.DisplayWidth;
+            int scaleGizmoStartY = SelectedLayer.Layer.PosY + (int)SelectedLayer.DisplayHeight;
 
             if ( p.X >= scaleGizmoStartX &&
                 p.X <= (scaleGizmoStartX + SelectedLayer.ScaleGizmoSize) &&
@@ -192,12 +188,7 @@ namespace AppComposer.ViewModels.Composition
 
             //Debug.WriteLine($"ScaleSelectedLayer()");
 
-            double dx = p.X - SelectedLayer.Layer.PosX;
-            double dy = p.Y - SelectedLayer.Layer.PosY;
-
-            double scale = (dx * SelectedLayer.Layer.Width + dy * SelectedLayer.Layer.Height) / (SelectedLayer.Layer.Width * SelectedLayer.Layer.Width + SelectedLayer.Layer.Height * SelectedLayer.Layer.Height);
-
-            SelectedLayer.Layer.Scale = Math.Max(0.05, scale);
+            SelectedLayer.UpdateScale(p);
         }
 
         public void MoveSelectedLayer(Point p)
@@ -209,6 +200,18 @@ namespace AppComposer.ViewModels.Composition
 
             //Debug.WriteLine($"MoveSelectedLayer {p.X} {p.Y}");
             SelectedLayer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
+        }
+
+        public void RotateSelectedLayer()
+        {
+            if (SelectedLayer == null)
+            {
+                return;
+            }
+
+            SelectedLayer.Layer.Rotation += 90;
+
+            // TODO Recalculate selection box after rotation
         }
     }
 }
