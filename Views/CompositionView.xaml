@@ -127,51 +127,77 @@
                     <ItemsControl.Resources>
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
                             <Grid>
-                                <Rectangle  Stroke="Lime"
+                                <Grid HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      RenderTransformOrigin="0.5,0.5">
+                                    
+                                    <Rectangle  Name="InnerCheckRectangle"
+                                                Stroke="yellow"
+                                                StrokeThickness="1"
+                                                StrokeDashArray="3 3"
+                                                Fill="Transparent"
+                                                IsHitTestVisible="False"
+                                                Panel.ZIndex="999"/>
+                                    
+                                    <Rectangle  Name="MainLayer"
+                                                Width="{Binding Layer.Width}"
+                                                Height="{Binding Layer.Height}"
+                                                Fill="DarkGray"
+                                                Stroke="Black"
+                                                StrokeThickness="{Binding SelectionBorderThickness}"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/>
+
+                                    <Rectangle  Name="ScaleOutline"
+                                                Width="{Binding Layer.Width}"
+                                                Height="{Binding Layer.Height}"
+                                                Fill="Transparent"
+                                                Stroke="Red"
+                                                StrokeThickness="{Binding ScaleBorderThickness}"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+                                    
+                                    <Rectangle  Name="Center"
+                                                Width="4"
+                                                Height="4"
+                                                Fill="Red"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                IsHitTestVisible="False"
+                                                RenderOptions.EdgeMode="Aliased"/>
+
+                                    <Grid.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="{Binding Layer.Scale}"
+                                                            ScaleY="{Binding Layer.Scale}"/>
+
+                                            <RotateTransform Angle="{Binding Layer.Rotation}"/>
+                                        </TransformGroup>
+                                    </Grid.RenderTransform>
+                                </Grid>
+                                
+                                <!--Rectangle  Name="CheckRectangle"
+                                            Stroke="Lime"
                                             StrokeThickness="1"
                                             StrokeDashArray="3 2"
                                             Fill="Transparent"
                                             IsHitTestVisible="False"
-                                            Panel.ZIndex="999" />
-                                            
-                                <Rectangle  Name="MainLayer"
-                                            Width="{Binding Layer.Width}"
-                                            Height="{Binding Layer.Height}"
-                                            Fill="DarkGray"
-                                            Stroke="Black"
+                                            Panel.ZIndex="999" /-->
+
+                                <Rectangle  Name="CheckBoundsRectangle"
+                                            Width="{Binding DisplayWidth}"
+                                            Height="{Binding DisplayHeight}"
+                                            Stroke="Blue"
+                                            Fill="Transparent"
                                             HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            RenderTransformOrigin="0,0"
-                                            StrokeThickness="{Binding BorderThickness}"
-                                            RenderOptions.EdgeMode="Aliased"
-                                            Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}">
+                                            VerticalAlignment="Top"/>
 
-                                    <Rectangle.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="{Binding Layer.Scale}"
-                                                            ScaleY="{Binding Layer.Scale}"
-                                                            CenterX="0"
-                                                            CenterY="0"/>
-                                            
-                                            <RotateTransform Angle="{Binding Layer.Rotation}"
-                                                             CenterX="{Binding CenterX}"
-                                                             CenterY="{Binding CenterY}"/>
-                                        </TransformGroup>
-                                    </Rectangle.RenderTransform>
-
-                                </Rectangle>
-
-                                <Rectangle Name="ScaleRectangle"
-                                           Width="{Binding ScaledWidth}"
-                                           Height="{Binding ScaledHeight}"
-                                           Fill="Transparent"
-                                           Stroke="Red"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Top"
-                                           RenderOptions.EdgeMode="Aliased"
-                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
-
-                                <Rectangle Width="{Binding ScaleGizmoSize}"
+                                <Rectangle Name="ScaleGizmo"
+                                           Width="{Binding ScaleGizmoSize}"
                                            Height="{Binding ScaleGizmoSize}"
                                            Fill="Red"
                                            Stroke="Red"
@@ -180,14 +206,6 @@
                                            RenderOptions.EdgeMode="Aliased"
                                            Margin="{Binding ScaleGizmoMargin}"
                                            Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
-
-                                <Rectangle Name="Center"
-                                           Width="4"
-                                           Height="4"
-                                           Fill="Red"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           RenderOptions.EdgeMode="Aliased"/>
 
                             </Grid>
                         </DataTemplate>

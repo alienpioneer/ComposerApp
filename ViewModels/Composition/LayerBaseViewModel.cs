@@ -19,7 +19,7 @@ namespace AppComposer.ViewModels.Composition
                 if (m_isSelected != value)
                 {
                     m_isSelected = value;
-                    OnPropertyChanged(nameof(BorderThickness));
+                    OnPropertyChanged(nameof(SelectionBorderThickness));
                 }
             }
         }
@@ -33,12 +33,14 @@ namespace AppComposer.ViewModels.Composition
                 {
                     m_isScaleMode = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(BorderThickness));
+                    OnPropertyChanged(nameof(SelectionBorderThickness));
+                    OnPropertyChanged(nameof(ScaleBorderThickness));
                 }
             }
         }
 
-        public double BorderThickness => (IsSelected && !IsScaleMode) ? 1.0 / Layer.Scale : 0.0;
+        public double SelectionBorderThickness => (IsSelected && !IsScaleMode) ? 1.0 / Layer.Scale : 0.0;
+        public double ScaleBorderThickness => IsScaleMode ? 1.0 / Layer.Scale : 0.0;
 
         // TODO Get from config
         public int ScaleGizmoSize { get; set; } = 14;
@@ -101,12 +103,18 @@ namespace AppComposer.ViewModels.Composition
             double scale = (dx * Layer.Width + dy * Layer.Height) / (Layer.Width * Layer.Width + Layer.Height * Layer.Height);
 
             Layer.Scale = Math.Max(0.05, scale);
+
+            OnPropertyChanged(nameof(ScaleBorderThickness));
         }
 
         public void UpdatePosition(Point p, int canvasWidth, int canvasHeight)
         {
-            Layer.PosX = Math.Clamp((int)p.X - Layer.OffsetX, 0, canvasWidth - (int)DisplayWidth);
-            Layer.PosY = Math.Clamp((int)p.Y - Layer.OffsetY, 0, canvasHeight - (int)DisplayWidth);
+            // Limit movement to the canvas
+            //Layer.PosX = Math.Clamp((int)p.X - Layer.OffsetX, 0, canvasWidth - (int)DisplayWidth);
+            //Layer.PosY = Math.Clamp((int)p.Y - Layer.OffsetY, 0, canvasHeight - (int)DisplayWidth);
+
+            Layer.PosX = (int)p.X - Layer.OffsetX;
+            Layer.PosY = (int)p.Y - Layer.OffsetY;
         }
 
         public bool CheckSelected(Point p)
@@ -114,8 +122,8 @@ namespace AppComposer.ViewModels.Composition
             bool result = false;
 
             if ((Layer.PosX <= p.X) &&
-                (p.X <= (Layer.PosX + DisplayWidth)) &&
                 (Layer.PosY <= p.Y) &&
+                (p.X <= (Layer.PosX + DisplayWidth)) &&
                 (p.Y <= (Layer.PosY + DisplayHeight)))
             {
                 result = true;
