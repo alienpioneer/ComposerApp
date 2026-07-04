@@ -85,8 +85,8 @@ namespace AppComposer.ViewModels
             ImageLayer layer = new("");
             layer.Height = 50;
             layer.Width = 70;
-            layer.PosX = 10;
-            layer.PosY = 10;
+            layer.PosX = 0;
+            layer.PosY = 0;
 
             CurrentPageVM?.AddImageLayer(layer);
         }
@@ -97,8 +97,8 @@ namespace AppComposer.ViewModels
 
             // Test only
             TextLayer layer = new("Test","Cambria",32);
-            layer.PosX = 10;
-            layer.PosY = 60;
+            layer.PosX = 0;
+            layer.PosY = 0;
             CurrentPageVM?.AddTextLayer(layer);
         }
 
@@ -111,7 +111,7 @@ namespace AppComposer.ViewModels
         private void ScaleLayer()
         {
             Debug.WriteLine("Scale Mode");
-            CurrentPageVM?.SwitchToScaleMode(true);
+            CurrentPageVM?.SwitchToScaleMode();
         }
 
         private void RotateLayer()

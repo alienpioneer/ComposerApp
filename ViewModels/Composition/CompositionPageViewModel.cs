@@ -35,7 +35,10 @@ namespace AppComposer.ViewModels.Composition
         public void AddImageLayer(ImageLayer imageLayer)
         {
             CompositionPage.Layers.Add(imageLayer);
-            Layers.Add(new ImageLayerViewModel(imageLayer));
+            ImageLayerViewModel vm = new ImageLayerViewModel(imageLayer);
+            Layers.Add(vm);
+            SelectedLayer?.SwitchMode(LayerInteractionMode.None);
+            SelectedLayer = vm;
         }
 
         public void AddTextLayer(TextLayer textLayer)
@@ -63,143 +66,72 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            SelectedLayer.Layer.Rotation = 0.0;
-            SelectedLayer.Layer.Scale = 1.0;
+            SelectedLayer.ResetTransforms();
         }
 
-        public void OnMouseDown(Point p)
-        {
-            Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
-            m_isMouseDown = true;
-            GetMouseSelection(p);
-        }
-
-        public void OnMouseUp(Point p)
-        {
-            Debug.WriteLine($"OnMouseUp {p.X} {p.Y}");
-            m_isMouseDown = false;
-        }
-
-        public void OnMouseMove(Point p)
-        {
-            if (!m_isMouseDown || SelectedLayer == null)
-            {
-                return;
-            }
-
-            //Debug.WriteLine($"OnMouseMove {p.X} {p.Y}");
-
-            if(SelectedLayer.IsScaleMode)
-            {
-                ScaleSelectedLayer(p);
-            }
-            else
-            {
-                MoveSelectedLayer(p);
-            }  
-        }
-
-        private void GetMouseSelection(Point p)
-        {
-            // Check for scale mode
-            if (CheckScaleSelection(p))
-            {
-                return;
-            }
-
-            // Pass in new selection mode
-            SwitchToScaleMode(false);
-            SelectedLayer = null;
-
-            foreach (var layer in Layers)
-            {
-                layer.IsSelected = false;
-            }
-
-            // Start in Z order with the top layers
-            for (int i = Layers.Count - 1; i >= 0; --i)
-            {
-
-                if (Layers.ElementAt(i).Layer != null &&
-                    Layers.ElementAt(i).CheckSelected(p))
-                {
-                    SelectedLayer = Layers.ElementAt(i);
-                    Layers.ElementAt(i).Layer.OffsetX = (int)p.X - Layers.ElementAt(i).Layer.PosX;
-                    Layers.ElementAt(i).Layer.OffsetY = (int)p.Y - Layers.ElementAt(i).Layer.PosY;
-                    Layers.ElementAt(i).IsSelected = true;
-                    break;
-                }
-
-                //Debug.WriteLine($"Layer selected {SelectedLayer?.Layer.Id}");
-            }
-
-            // Move it to Z front
-            if (SelectedLayer != null)
-            {
-                int index = Layers.IndexOf(SelectedLayer);
-
-                if (index >= 0)
-                {
-                    Layers.Move(index, Layers.Count - 1);
-                }
-            }
-        }
-
-        private bool CheckScaleSelection(Point p)
-        {
-            bool result = false;
-
-            if (SelectedLayer == null || !SelectedLayer.IsScaleMode)
-            {
-                return result;
-            }
-
-            int scaleGizmoStartX = SelectedLayer.Layer.PosX + (int)SelectedLayer.DisplayWidth;
-            int scaleGizmoStartY = SelectedLayer.Layer.PosY + (int)SelectedLayer.DisplayHeight;
-
-            if ( p.X >= scaleGizmoStartX &&
-                p.X <= (scaleGizmoStartX + SelectedLayer.ScaleGizmoSize) &&
-                p.Y >= scaleGizmoStartY &&
-                p.Y <= (scaleGizmoStartY + SelectedLayer.ScaleGizmoSize))
-            {
-                //Debug.WriteLine($"Scale Gizmo selected");
-                result = true;
-            }
-
-            return result;
-        }
-
-        public void SwitchToScaleMode(bool switchMode)
+        public void SwitchToScaleMode()
         {
             if (SelectedLayer == null)
             {
                 return;
             }
 
-            SelectedLayer.IsScaleMode = switchMode;
+            SelectedLayer.SwitchMode(LayerInteractionMode.Scale);
+        }
+
+        public void OnMouseDown(Point p)
+        {
+            //Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
+            m_isMouseDown = true;
+            CheckMouseSelection(p);
+        }
+
+        public void OnMouseUp(Point p)
+        {
+            //Debug.WriteLine($"OnMouseUp {p.X} {p.Y}");
+            m_isMouseDown = false;
+            SelectedLayer?.UpdateBBox();
+        }
+
+        public void OnMouseMove(Point p)
+        {
+            if (!m_isMouseDown || SelectedLayer == null)
+            { 
+                return;
+            }
+
+            if(SelectedLayer.Mode == LayerInteractionMode.Scale)
+            {
+                ScaleSelectedLayer(p);
+            }
+            else if (SelectedLayer.Mode == LayerInteractionMode.Move)
+            {
+                MoveSelectedLayer(p);
+            }  
         }
 
         public void ScaleSelectedLayer(Point p)
         {
-            if (SelectedLayer == null || !SelectedLayer.IsScaleMode)
+            if (SelectedLayer == null || SelectedLayer.Mode != LayerInteractionMode.Scale)
             {
                 return;
             }
 
             //Debug.WriteLine($"ScaleSelectedLayer()");
 
-            SelectedLayer.UpdateScale(p);
+            SelectedLayer.ScaleLayer(p);
         }
 
         public void MoveSelectedLayer(Point p)
         {
-            if (SelectedLayer == null || SelectedLayer.IsScaleMode)
+            if (SelectedLayer == null || SelectedLayer.Mode != LayerInteractionMode.Move)
             {
                 return;
             }
 
             //Debug.WriteLine($"MoveSelectedLayer {p.X} {p.Y}");
-            SelectedLayer.UpdatePosition(p, CompositionPage.CanvasSettings.Width, CompositionPage.CanvasSettings.Height);
+
+            SelectedLayer.MoveLayer(p);
         }
 
         public void RotateSelectedLayer()
@@ -209,9 +141,62 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            SelectedLayer.Layer.Rotation += 90;
+            SelectedLayer.RotateLayer();
+        }
 
-            // TODO Recalculate selection box after rotation
+
+        private bool CheckScaleHandleSelection(Point p)
+        {
+            bool result = false;
+
+            if (SelectedLayer == null || SelectedLayer.Mode != LayerInteractionMode.Scale)
+            {
+                return result;
+            }
+
+            return SelectedLayer.CheckGizmoSelection(p);
+        }
+
+        private void CheckMouseSelection(Point p)
+        {
+            // Check for scale gizmo selection
+            if (CheckScaleHandleSelection(p))
+            {
+                return;
+            }
+
+            // Pass in new selection mode
+            SelectedLayer?.SwitchMode(LayerInteractionMode.None);
+            SelectedLayer = null;
+
+            // Start in Z order with the top layers
+            for (int i = Layers.Count - 1; i >= 0; --i)
+            {
+                if (Layers.ElementAt(i).Layer != null &&
+                    Layers.ElementAt(i).CheckLayerSelection(p))
+                {
+                    SelectedLayer = Layers.ElementAt(i);
+                    SelectedLayer.Layer.OffsetX = (int)(p.X - SelectedLayer.Layer.PosX);
+                    SelectedLayer.Layer.OffsetY = (int)(p.Y - SelectedLayer.Layer.PosY);
+                    SelectedLayer.SwitchMode(LayerInteractionMode.Move);
+                    SelectedLayer.InitialMovePosition = p;
+                    break;
+                }
+            }
+
+            // Move it to Z front and store transformation point
+            if (SelectedLayer != null)
+            {
+                //Debug.WriteLine($"Layer selected {SelectedLayer.Layer.Id}");
+                //Debug.WriteLine($"Layer Mode {SelectedLayer.Mode}");
+
+                int index = Layers.IndexOf(SelectedLayer);
+
+                if (index >= 0)
+                {
+                    Layers.Move(index, Layers.Count - 1);
+                }
+            }
         }
     }
 }

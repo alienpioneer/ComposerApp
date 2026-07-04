@@ -119,26 +119,21 @@
 
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
-                            <Setter Property="Canvas.Left" Value="{Binding Layer.PosX}" />
-                            <Setter Property="Canvas.Top" Value="{Binding Layer.PosY}" />
+                            <Setter Property="Canvas.Left" Value="0" />
+                            <Setter Property="Canvas.Top" Value="0" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
 
                     <ItemsControl.Resources>
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
-                            <Grid>
-                                <Grid HorizontalAlignment="Left"
+                            
+                            <Grid Name="TranslateGrid">
+                                <!-- Use separate grid for scalling to avid gizmo scalling or messing the coordinates -->
+                                    <Grid Name="ScaleRotateGrid"
+                                      HorizontalAlignment="Left"
                                       VerticalAlignment="Top"
                                       RenderTransformOrigin="0.5,0.5">
-                                    
-                                    <Rectangle  Name="InnerCheckRectangle"
-                                                Stroke="yellow"
-                                                StrokeThickness="1"
-                                                StrokeDashArray="3 3"
-                                                Fill="Transparent"
-                                                IsHitTestVisible="False"
-                                                Panel.ZIndex="999"/>
-                                    
+
                                     <Rectangle  Name="MainLayer"
                                                 Width="{Binding Layer.Width}"
                                                 Height="{Binding Layer.Height}"
@@ -155,20 +150,20 @@
                                                 Height="{Binding Layer.Height}"
                                                 Fill="Transparent"
                                                 Stroke="Red"
-                                                StrokeThickness="{Binding ScaleBorderThickness}"
+                                                StrokeThickness="{Binding ScaleOutlineBorderThickness}"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 RenderOptions.EdgeMode="Aliased"
-                                                Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
-                                    
-                                    <Rectangle  Name="Center"
+                                                Visibility="{Binding ShowScaleManipulator, Converter={StaticResource BoolToVis}}"/>
+
+                                    <!--Rectangle  Name="Center"
                                                 Width="4"
                                                 Height="4"
                                                 Fill="Red"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 IsHitTestVisible="False"
-                                                RenderOptions.EdgeMode="Aliased"/>
+                                                RenderOptions.EdgeMode="Aliased"/-->
 
                                     <Grid.RenderTransform>
                                         <TransformGroup>
@@ -176,25 +171,11 @@
                                                             ScaleY="{Binding Layer.Scale}"/>
 
                                             <RotateTransform Angle="{Binding Layer.Rotation}"/>
+
                                         </TransformGroup>
                                     </Grid.RenderTransform>
-                                </Grid>
-                                
-                                <!--Rectangle  Name="CheckRectangle"
-                                            Stroke="Lime"
-                                            StrokeThickness="1"
-                                            StrokeDashArray="3 2"
-                                            Fill="Transparent"
-                                            IsHitTestVisible="False"
-                                            Panel.ZIndex="999" /-->
 
-                                <Rectangle  Name="CheckBoundsRectangle"
-                                            Width="{Binding DisplayWidth}"
-                                            Height="{Binding DisplayHeight}"
-                                            Stroke="Blue"
-                                            Fill="Transparent"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"/>
+                                </Grid>
 
                                 <Rectangle Name="ScaleGizmo"
                                            Width="{Binding ScaleGizmoSize}"
@@ -205,9 +186,15 @@
                                            VerticalAlignment="Top"
                                            RenderOptions.EdgeMode="Aliased"
                                            Margin="{Binding ScaleGizmoMargin}"
-                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+                                           Visibility="{Binding ShowScaleManipulator, Converter={StaticResource BoolToVis}}"/>
+
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="{Binding Layer.PosX}"
+                                                        Y="{Binding Layer.PosY}"/>
+                                </Grid.RenderTransform>
 
                             </Grid>
+
                         </DataTemplate>
 
                         <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
@@ -264,6 +251,17 @@
 
                     </ItemsControl.Resources>
                 </ItemsControl>
+
+                <Rectangle  Name="CheckBoundsRectangle"
+                            Stroke="Blue"
+                            StrokeThickness="1"
+                            StrokeDashArray="5 2"
+                            Fill="Blue"
+                            Width="10"
+                            Height="10"
+                            Canvas.Left="{Binding CurrentPageVM.SelectedLayer.Layer.PosX}"
+                            Canvas.Top="{Binding CurrentPageVM.SelectedLayer.Layer.PosY}"/>
+
             </Canvas>
         </Border>
 

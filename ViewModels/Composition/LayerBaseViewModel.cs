@@ -1,15 +1,41 @@
 ﻿using AppComposer.Models;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media.Imaging;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace AppComposer.ViewModels.Composition
 {
+    public enum LayerInteractionMode
+    {
+        None,
+        Move,
+        Scale,
+        Rotate
+    }
+
     public abstract class LayerBaseViewModel : ViewModelBase
     {
         public LayerBase Layer { get; }
+        
+        // [top_left_x, top_left_y, bottom_right_x, bottom_right_y]
+        public double[] BBox { get; set; } = new double[4];
+        public double BBoxWidth => BBox[2] - BBox[0];
+        public double BBoxHeight => BBox[3] - BBox[1];
+
+        public Point InitialMovePosition { get; set; }
+
+        public LayerInteractionMode Mode { get; set; }
+
+        // TODO Get from config
+        public int ScaleGizmoSize { get; set; } = 14;
+        public Thickness ScaleGizmoMargin => new Thickness(BBox[2] - Layer.PosX, BBox[3] - Layer.PosY, 0, 0);
+
+        public bool ShowScaleManipulator { get; set; }
 
         private bool m_isSelected = false;
-        private bool m_isScaleMode = false;
 
         public bool IsSelected
         {
@@ -24,39 +50,8 @@ namespace AppComposer.ViewModels.Composition
             }
         }
 
-        public bool IsScaleMode
-        {
-            get => m_isScaleMode;
-            set
-            {
-                if (m_isScaleMode != value)
-                {
-                    m_isScaleMode = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(SelectionBorderThickness));
-                    OnPropertyChanged(nameof(ScaleBorderThickness));
-                }
-            }
-        }
-
-        public double SelectionBorderThickness => (IsSelected && !IsScaleMode) ? 1.0 / Layer.Scale : 0.0;
-        public double ScaleBorderThickness => IsScaleMode ? 1.0 / Layer.Scale : 0.0;
-
-        // TODO Get from config
-        public int ScaleGizmoSize { get; set; } = 14;
-
-        public Thickness ScaleGizmoMargin => new Thickness(ScaledWidth, ScaledHeight, 0, 0);
-
-        public double ScaledWidth  => Layer.Width * Layer.Scale;
-        public double ScaledHeight => Layer.Height * Layer.Scale;
-
-        public double CenterX => ScaledWidth/2.0;
-        public double CenterY => ScaledHeight/2.0;
-
-        private bool Swapped => (Layer.Rotation % 180) != 0;
-
-        public double DisplayWidth => Swapped ? ScaledHeight : ScaledWidth;
-        public double DisplayHeight => Swapped ? ScaledWidth : ScaledHeight;
+        public double SelectionBorderThickness => (IsSelected && Mode != LayerInteractionMode.Scale) ? 1.0 / Layer.Scale : 0.0;
+        public double ScaleOutlineBorderThickness => Mode == LayerInteractionMode.Scale ? 1.0 / Layer.Scale : 0.0;
 
         public LayerBaseViewModel(LayerBase layer)
         {
@@ -64,38 +59,38 @@ namespace AppComposer.ViewModels.Composition
 
             Layer.PropertyChanged += (_, e) =>
             {
+                UpdateBBox();
+
                 if (e.PropertyName == nameof(LayerBase.Scale))
                 {
-                    OnPropertyChanged(nameof(ScaledWidth));
-                    OnPropertyChanged(nameof(ScaledHeight));
-                    OnPropertyChanged(nameof(DisplayWidth));
-                    OnPropertyChanged(nameof(DisplayHeight));
                     OnPropertyChanged(nameof(ScaleGizmoMargin));
+                    OnPropertyChanged(nameof(ScaleOutlineBorderThickness));
                 }
 
                 if (e.PropertyName == nameof(LayerBase.Height))
                 {
-                    OnPropertyChanged(nameof(ScaledHeight));
-                    OnPropertyChanged(nameof(CenterY));
                     OnPropertyChanged(nameof(ScaleGizmoMargin));
                 }
 
                 if (e.PropertyName == nameof(LayerBase.Width))
                 {
-                    OnPropertyChanged(nameof(ScaledWidth));
-                    OnPropertyChanged(nameof(CenterX));
                     OnPropertyChanged(nameof(ScaleGizmoMargin));
                 }
 
                 if (e.PropertyName == nameof(LayerBase.Rotation))
                 {
-                    OnPropertyChanged(nameof(DisplayWidth));
-                    OnPropertyChanged(nameof(DisplayHeight));
+                    OnPropertyChanged(nameof(ScaleGizmoMargin));
                 }
             };
         }
 
-        public void UpdateScale(Point p)
+        public void MoveLayer(Point p)
+        {
+            Layer.PosX = (int)p.X - Layer.OffsetX;
+            Layer.PosY = (int)p.Y - Layer.OffsetY;
+        }
+
+        public void ScaleLayer(Point p)
         {
             double dx = p.X - Layer.PosX;
             double dy = p.Y - Layer.PosY;
@@ -103,33 +98,127 @@ namespace AppComposer.ViewModels.Composition
             double scale = (dx * Layer.Width + dy * Layer.Height) / (Layer.Width * Layer.Width + Layer.Height * Layer.Height);
 
             Layer.Scale = Math.Max(0.05, scale);
-
-            OnPropertyChanged(nameof(ScaleBorderThickness));
         }
 
-        public void UpdatePosition(Point p, int canvasWidth, int canvasHeight)
+        public void RotateLayer()
         {
-            // Limit movement to the canvas
-            //Layer.PosX = Math.Clamp((int)p.X - Layer.OffsetX, 0, canvasWidth - (int)DisplayWidth);
-            //Layer.PosY = Math.Clamp((int)p.Y - Layer.OffsetY, 0, canvasHeight - (int)DisplayWidth);
-
-            Layer.PosX = (int)p.X - Layer.OffsetX;
-            Layer.PosY = (int)p.Y - Layer.OffsetY;
+            Layer.Rotation += 90;
         }
 
-        public bool CheckSelected(Point p)
+        public bool CheckLayerSelection(Point p)
         {
             bool result = false;
 
-            if ((Layer.PosX <= p.X) &&
-                (Layer.PosY <= p.Y) &&
-                (p.X <= (Layer.PosX + DisplayWidth)) &&
-                (p.Y <= (Layer.PosY + DisplayHeight)))
+            //Debug.WriteLine($"CheckLayerSelection()");
+
+            UpdateBBox();
+
+            if (p.X >= BBox[0] &&
+                p.X <= BBox[2] &&
+                p.Y >= BBox[1] &&
+                p.Y <= BBox[3])
             {
                 result = true;
+                //Debug.WriteLine($"Selection Hit !");
             }
 
             return result;
         }
+
+        public bool CheckGizmoSelection(Point p)
+        {
+            bool result = false;
+
+            if (p.X >= BBox[2] &&
+                p.X <= (BBox[2] + ScaleGizmoSize) &&
+                p.Y >= BBox[3] &&
+                p.Y <= (BBox[3] + ScaleGizmoSize))
+            {
+                result = true;
+                //Debug.WriteLine($"Gizmo Hit !");
+            }
+
+            return result;
+        }
+
+        public void SwitchMode(LayerInteractionMode mode)
+        {
+            Mode = mode;
+
+            switch (Mode)
+            {
+                case LayerInteractionMode.None:
+                    IsSelected = false;
+                    ShowScaleManipulator = false;
+                    OnPropertyChanged(nameof(ShowScaleManipulator));
+                break;
+
+                case LayerInteractionMode.Move:
+                    IsSelected = true;
+                break;
+
+                case LayerInteractionMode.Rotate:
+                break;
+
+                case LayerInteractionMode.Scale:
+                    ShowScaleManipulator = true;
+                    OnPropertyChanged(nameof(ShowScaleManipulator));
+                    OnPropertyChanged(nameof(ScaleOutlineBorderThickness));
+                    OnPropertyChanged(nameof(SelectionBorderThickness)); 
+                    OnPropertyChanged(nameof(ScaleGizmoMargin));
+                    Debug.WriteLine(ScaleGizmoMargin);
+                    break;
+            }
+        }
+
+        public void UpdateBBox()
+        {   
+            Matrix matrix = BuildTransformationMatrix();
+
+            // Top Left
+            Point p0 = matrix.Transform(new Point(0, 0));
+            // Bottom Right
+            Point p1 = matrix.Transform(new Point(Layer.Width, Layer.Height));
+            // Top Right
+            Point p2 = matrix.Transform(new Point(Layer.Width, 0));
+            // Bottom Left
+            Point p3 = matrix.Transform(new Point(0, Layer.Height));
+
+            double left = Math.Min(Math.Min(p0.X, p1.X), Math.Min(p2.X, p3.X));
+            double top = Math.Min(Math.Min(p0.Y, p1.Y), Math.Min(p2.Y, p3.Y));
+            double right = Math.Max(Math.Max(p0.X, p1.X), Math.Max(p2.X, p3.X));
+            double bottom = Math.Max(Math.Max(p0.Y, p1.Y), Math.Max(p2.Y, p3.Y));
+
+            BBox[0] = left;
+            BBox[1] = top;
+            BBox[2] = right;
+            BBox[3] = bottom;
+
+            OnPropertyChanged(nameof(BBox));
+            OnPropertyChanged(nameof(BBoxWidth));
+            OnPropertyChanged(nameof(BBoxHeight));
+            OnPropertyChanged(nameof(ScaleGizmoMargin));
+
+            //Debug.WriteLine(matrix);
+            //Debug.WriteLine(matrix.Transform(new Point(0, 0)));
+        }
+
+        private Matrix BuildTransformationMatrix()
+        {
+            Matrix matrix = Matrix.Identity;
+
+            matrix.ScaleAt(Layer.Scale, Layer.Scale, Layer.CenterX, Layer.CenterY);
+            matrix.RotateAt(Layer.Rotation, Layer.CenterX, Layer.CenterY);
+            matrix.Translate(Layer.PosX, Layer.PosY);
+
+            return matrix;
+        }
+
+        public void ResetTransforms()
+        {
+            Layer.Rotation = 0.0;
+            Layer.Scale = 1.0;
+        }
+
     }
 }
