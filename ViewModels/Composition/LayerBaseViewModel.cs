@@ -45,6 +45,7 @@ namespace AppComposer.ViewModels.Composition
                 if (m_isSelected != value)
                 {
                     m_isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
                     OnPropertyChanged(nameof(SelectionBorderThickness));
                 }
             }
@@ -92,11 +93,14 @@ namespace AppComposer.ViewModels.Composition
 
         public void ScaleLayer(Point p)
         {
-            double dx = p.X - Layer.PosX;
-            double dy = p.Y - Layer.PosY;
+            // project point p onto the line from the center of the layer to the corner of the layer
+            double centerX = Layer.PosX + Layer.CenterX;
+            double centerY = Layer.PosY + Layer.CenterY;
 
-            double scale = (dx * Layer.Width + dy * Layer.Height) / (Layer.Width * Layer.Width + Layer.Height * Layer.Height);
+            double dx = Math.Abs(p.X - centerX);
+            double dy = Math.Abs(p.Y - centerY);
 
+            double scale = (dx * Layer.CenterX + dy * Layer.CenterY) / (Layer.CenterX * Layer.CenterX + Layer.CenterY * Layer.CenterY);
             Layer.Scale = Math.Max(0.05, scale);
         }
 

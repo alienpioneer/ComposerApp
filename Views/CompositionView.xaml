@@ -126,10 +126,10 @@
 
                     <ItemsControl.Resources>
                         <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
-                            
+
                             <Grid Name="TranslateGrid">
                                 <!-- Use separate grid for scalling to avid gizmo scalling or messing the coordinates -->
-                                    <Grid Name="ScaleRotateGrid"
+                                <Grid Name="ScaleRotateGrid"
                                       HorizontalAlignment="Left"
                                       VerticalAlignment="Top"
                                       RenderTransformOrigin="0.5,0.5">
@@ -156,15 +156,6 @@
                                                 RenderOptions.EdgeMode="Aliased"
                                                 Visibility="{Binding ShowScaleManipulator, Converter={StaticResource BoolToVis}}"/>
 
-                                    <!--Rectangle  Name="Center"
-                                                Width="4"
-                                                Height="4"
-                                                Fill="Red"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                IsHitTestVisible="False"
-                                                RenderOptions.EdgeMode="Aliased"/-->
-
                                     <Grid.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform ScaleX="{Binding Layer.Scale}"
@@ -177,7 +168,7 @@
 
                                 </Grid>
 
-                                <Rectangle Name="ScaleGizmo"
+                                <Rectangle Name="ImageScaleGizmo"
                                            Width="{Binding ScaleGizmoSize}"
                                            Height="{Binding ScaleGizmoSize}"
                                            Fill="Red"
@@ -198,69 +189,70 @@
                         </DataTemplate>
 
                         <DataTemplate DataType="{x:Type vm:TextLayerViewModel}">
-                            <Grid>
-                                <Border BorderBrush="Black" 
-                                        BorderThickness="{Binding BorderThickness}"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
-                                        RenderOptions.EdgeMode="Aliased"
-                                        
-                                        Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}">
+                            
+                            <Grid Name="TextTranslateGrid">
 
-                                    <Border.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform ScaleX="{Binding Layer.Scale}"
-                                                            ScaleY="{Binding Layer.Scale}"
-                                                            CenterX="0"
-                                                            CenterY="0"/>
-                                            
-                                            <RotateTransform Angle="{Binding Layer.Rotation}"
-                                                             CenterX="{Binding CenterX}"
-                                                             CenterY="{Binding CenterY}"/>
-                                        </TransformGroup>
-                                    </Border.RenderTransform>
+                                <Grid Name="TextScaleRotateGrid"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      RenderTransformOrigin="0.5,0.5">
 
                                     <TextBlock  Text="{Binding TextLayer.Text}"
-                                                FontFamily="{Binding TextLayer.FontName}"
-                                                FontSize="{Binding TextLayer.FontSize}"
-                                                Loaded="TextBlock_Loaded"
-                                                SizeChanged="TextBlock_SizeChanged"/>
+                                                    FontFamily="{Binding TextLayer.FontName}"
+                                                    FontSize="{Binding TextLayer.FontSize}"
+                                                    Loaded="TextBlock_Loaded"
+                                                    SizeChanged="TextBlock_SizeChanged"/>
 
-                                </Border>
+                                    <Rectangle  Name="TextOutline"
+                                                Width="{Binding Layer.Width}"
+                                                Height="{Binding Layer.Height}"
+                                                Fill="Transparent"
+                                                Stroke="black"
+                                                StrokeThickness="{Binding SelectionBorderThickness}"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                RenderOptions.EdgeMode="Aliased"
+                                                Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"/>
 
-                                    <Rectangle Width="{Binding DisplayWidth}"
-                                           Height="{Binding DisplayHeight}"
-                                           Fill="Transparent"
-                                           Stroke="Red"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Top"
-                                           RenderOptions.EdgeMode="Aliased"
-                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+                                    <Rectangle Name="TextScaleOutline"
+                                               Width="{Binding Layer.Width}"
+                                               Height="{Binding Layer.Height}"
+                                               Fill="Transparent"
+                                               Stroke="Red"
+                                               StrokeThickness="{Binding ScaleOutlineBorderThickness}"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Top"
+                                               RenderOptions.EdgeMode="Aliased"
+                                               Visibility="{Binding ShowScaleManipulator, Converter={StaticResource BoolToVis}}"/>
 
-                                <Rectangle Width="{Binding ScaleGizmoSize}"
-                                           Height="{Binding ScaleGizmoSize}"
-                                           Fill="Red"
-                                           Stroke="Red"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Top"
-                                           Margin="{Binding ScaleGizmoMargin}"
-                                           Visibility="{Binding IsScaleMode, Converter={StaticResource BoolToVis}}"/>
+                                    <Grid.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="{Binding Layer.Scale}"
+                                                            ScaleY="{Binding Layer.Scale}"/>
+                                            <RotateTransform Angle="{Binding Layer.Rotation}"/>
+                                        </TransformGroup>
+                                    </Grid.RenderTransform>
+                                </Grid>
+
+                                <Rectangle  Width="{Binding ScaleGizmoSize}"
+                                            Height="{Binding ScaleGizmoSize}"
+                                            Fill="Red"
+                                            Stroke="Red"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Margin="{Binding ScaleGizmoMargin}"
+                                            Visibility="{Binding ShowScaleManipulator, Converter={StaticResource BoolToVis}}"/>
+
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="{Binding Layer.PosX}"
+                                                        Y="{Binding Layer.PosY}"/>
+                                </Grid.RenderTransform>
 
                             </Grid>
                         </DataTemplate>
 
                     </ItemsControl.Resources>
                 </ItemsControl>
-
-                <Rectangle  Name="CheckBoundsRectangle"
-                            Stroke="Blue"
-                            StrokeThickness="1"
-                            StrokeDashArray="5 2"
-                            Fill="Blue"
-                            Width="10"
-                            Height="10"
-                            Canvas.Left="{Binding CurrentPageVM.SelectedLayer.Layer.PosX}"
-                            Canvas.Top="{Binding CurrentPageVM.SelectedLayer.Layer.PosY}"/>
 
             </Canvas>
         </Border>
