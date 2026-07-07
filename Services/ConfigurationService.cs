@@ -8,6 +8,8 @@ namespace AppComposer.Services
 
         public int CanvasWidth { get; }
         public int CanvasHeight { get; }
+        public int GridSize { get; }
+        public string BackgroundColor { get; }
 
         public static void Initialize(string iniPath)
         {
@@ -19,7 +21,10 @@ namespace AppComposer.Services
             var reader = new IniReader(iniPath);
 
             CanvasWidth = Int32.Parse(reader.GetValue("CANVAS", "Width", "650"));
-            CanvasHeight = Int32.Parse(reader.GetValue("CANVAS", "Height", "650"));
+            CanvasHeight = Int32.Parse(reader.GetValue("CANVAS", "Height", "350"));
+
+            GridSize = Int32.Parse(reader.GetValue("CANVAS", "GridSize", "20"));
+            BackgroundColor = reader.GetValue("CANVAS", "BackgroundColor", "#FFFFFF");
         }
 
     }

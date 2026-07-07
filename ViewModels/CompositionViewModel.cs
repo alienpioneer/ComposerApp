@@ -22,6 +22,18 @@ namespace AppComposer.ViewModels
         public ICommand RotateLayerCommand { get; }
         public ICommand ResetLayerCommand { get; }
 
+        private bool _isGridVisible;
+        public bool IsGridVisible
+        {
+            get => _isGridVisible;
+            set
+            {
+                _isGridVisible = value;
+                OnPropertyChanged();
+                CurrentCanvasSettings.ShowGrid = _isGridVisible;
+            }
+        }
+
         public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
 
@@ -32,6 +44,8 @@ namespace AppComposer.ViewModels
             CurrentCanvasSettings = new CanvasSettings();
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
+            CurrentCanvasSettings.GridSize = ConfigurationService.Instance.GridSize;
+            CurrentCanvasSettings.BackgroundColor = ConfigurationService.Instance.BackgroundColor;
 
             ShowHomeCommand = new RelayCommand(() => m_mainWindowViewModel.ShowHome(), () => true);
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);
@@ -125,6 +139,5 @@ namespace AppComposer.ViewModels
             Debug.WriteLine("Reset layer");
             CurrentPageVM?.ResetSelectedLayer();
         }
-
     }
 }
