@@ -10,8 +10,24 @@
     <Canvas Background="#525252">
         
         <Button Content="Composer"
+                Height="40" 
+                Width="140"
+                Padding="0"
+                Canvas.Left="40" 
+                Canvas.Top="30" 
+                HorizontalAlignment="Left" VerticalAlignment="Center" 
                 BorderThickness="2"
-                
-                Command="{Binding ShowComposerCommand}" Height="30" Canvas.Left="42" Canvas.Top="42" HorizontalAlignment="Left" VerticalAlignment="Center" Width="135" />
+                Command="{Binding ShowComposerCommand}"   />
+
+        <Button Content="Settings"
+                Height="40" 
+                Width="140"
+                Padding="0"
+                Canvas.Left="40" 
+                Canvas.Top="100" 
+                HorizontalAlignment="Left" VerticalAlignment="Center" 
+                BorderThickness="2"
+                Command="{Binding ShowSettingsCommand}"   />
+
     </Canvas>
 </UserControl>

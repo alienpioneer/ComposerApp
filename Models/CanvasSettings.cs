@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Windows;
 
 namespace AppComposer.Models
 {
@@ -10,7 +10,10 @@ namespace AppComposer.Models
         public string BackgroundColor { get; set; } = "#FFFFFF";
 
         public bool ShowGrid { get; set; } = false;
-        public int GridSize { get; set; } = 20;
+
+        public int GridSize { get; set; } = 15;
+
+        public Rect GridViewport => new(0, 0, GridSize, GridSize);
 
         public bool ShowRulers { get; set; } = false;
 
