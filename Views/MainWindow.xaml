@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:AppComposer.ViewModels"
         xmlns:views="clr-namespace:AppComposer.Views"
         mc:Ignorable="d"
-        Title="Composer" Height="450" Width="810">
+        Title="Composer" Height="470" Width="810">
     
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:HomeViewModel}">
