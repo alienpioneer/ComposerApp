@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace AppComposer.Models
@@ -19,7 +20,10 @@ namespace AppComposer.Models
         public string BackgroundColor { get; set; } = "#FFBBBB";
 
         public int GridSize { get; set; } = 10;
-        public int RulerHeight { get; set; } = 20;
+
+        public int RulerSize { get; set; } = 20;
+        public int RulerFontSize { get; set; } = 10;
+        public int Dpi { get; set; } = 96;
 
         private bool m_showGrid = false;
         public bool ShowGrid
@@ -66,7 +70,7 @@ namespace AppComposer.Models
         {
             get
             {
-                return CreateRulerBrush(96, false);
+                return CreateRulerBrush(Dpi, false);
             }
         }
 
@@ -74,7 +78,7 @@ namespace AppComposer.Models
         {
             get
             {
-                return CreateRulerBrush(96, true);
+                return CreateRulerBrush(Dpi, true);
             }
         }
 
@@ -117,11 +121,11 @@ namespace AppComposer.Models
 
             if (isVertical)
             {
-                backgroundFrame = new Rect(0, 0, RulerHeight, pixelsPerCm);
+                backgroundFrame = new Rect(0, 0, RulerSize, pixelsPerCm);
             }
             else 
             {
-                backgroundFrame = new Rect(0, 0, pixelsPerCm, RulerHeight);
+                backgroundFrame = new Rect(0, 0, pixelsPerCm, RulerSize);
             }
 
             var background = new GeometryDrawing
@@ -134,16 +138,18 @@ namespace AppComposer.Models
 
             for (int i=0; i<=10; i++)
             {
-                double lineHeight = i==0 ? RulerHeight/2 :
-                                    i==5 ? RulerHeight/3 : RulerHeight/4;
+                double lineHeight = i==0 ? RulerSize/2 :
+                                    i==5 ? RulerSize/3 : RulerSize/4;
 
                 if (isVertical)
                 {
-                    geometryGroup.Children.Add(new LineGeometry(new Point(RulerHeight - lineHeight, i * pixelsPerMm), new Point(RulerHeight, i * pixelsPerMm)));
+                    geometryGroup.Children.Add(new LineGeometry(new Point(RulerSize - lineHeight, i * pixelsPerMm),
+                                                                new Point(RulerSize, i * pixelsPerMm)));
                 }
                 else
                 {
-                    geometryGroup.Children.Add(new LineGeometry(new Point(i*pixelsPerMm, RulerHeight), new Point(i*pixelsPerMm, RulerHeight-lineHeight)));
+                    geometryGroup.Children.Add(new LineGeometry(new Point(i*pixelsPerMm, RulerSize),
+                                                                new Point(i*pixelsPerMm, RulerSize-lineHeight)));
                 }
             }
 
