@@ -34,6 +34,9 @@ namespace AppComposer.ViewModels
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
             CurrentCanvasSettings.GridSize = ConfigurationService.Instance.GridSize;
             CurrentCanvasSettings.BackgroundColor = ConfigurationService.Instance.BackgroundColor;
+            CurrentCanvasSettings.Dpi = ConfigurationService.Instance.ScreenDpi;
+            CurrentCanvasSettings.RulerBandSize = ConfigurationService.Instance.RulerBandSize;
+            CurrentCanvasSettings.RulerFontSize = ConfigurationService.Instance.RulerFontSize;
 
             ShowHomeCommand = new RelayCommand(() => m_mainWindowViewModel.ShowHome(), () => true);
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);

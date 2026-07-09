@@ -8,8 +8,14 @@ namespace AppComposer.Services
 
         public int CanvasWidth { get; }
         public int CanvasHeight { get; }
+
         public int GridSize { get; }
+
         public string BackgroundColor { get; }
+
+        public int RulerBandSize { get; }
+        public int RulerFontSize { get; }
+        public int ScreenDpi { get; }
 
         public static void Initialize(string iniPath)
         {
@@ -24,7 +30,12 @@ namespace AppComposer.Services
             CanvasHeight = Int32.Parse(reader.GetValue("CANVAS", "Height", "350"));
 
             GridSize = Int32.Parse(reader.GetValue("CANVAS", "GridSize", "20"));
+
             BackgroundColor = reader.GetValue("CANVAS", "BackgroundColor", "#FFFFFF");
+
+            ScreenDpi = Int32.Parse(reader.GetValue("CANVAS", "ScreenDpi", "96"));
+            RulerBandSize = Int32.Parse(reader.GetValue("CANVAS", "RulerBandSize", "20"));
+            RulerFontSize = Int32.Parse(reader.GetValue("CANVAS", "RulerFontSize", "10"));
         }
 
     }
