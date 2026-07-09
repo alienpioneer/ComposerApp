@@ -15,7 +15,7 @@ namespace AppComposer.Services
         {
             Instance = new ConfigurationService(iniPath);
         }
-
+        
         private ConfigurationService(string iniPath)
         {
             var reader = new IniReader(iniPath);

@@ -22,18 +22,6 @@ namespace AppComposer.ViewModels
         public ICommand RotateLayerCommand { get; }
         public ICommand ResetLayerCommand { get; }
 
-        private bool _isGridVisible;
-        public bool IsGridVisible
-        {
-            get => _isGridVisible;
-            set
-            {
-                _isGridVisible = value;
-                OnPropertyChanged();
-                CurrentCanvasSettings.ShowGrid = _isGridVisible;
-            }
-        }
-
         public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
 
@@ -78,7 +66,7 @@ namespace AppComposer.ViewModels
 
             if (CurrentPageVM != null)
             {
-                // Implement saving logic here
+                // TODO Implement saving logic here
                 // For example, serialize CurrentPage to a file
             }
         }
@@ -86,7 +74,7 @@ namespace AppComposer.ViewModels
         private void LoadComposition()
         {
             Debug.WriteLine("Load composition");
-            // Implement loading logic here
+            // TODO Implement loading logic here
             // For example, deserialize a file to CurrentPage
             // After loading, call OnPropertyChanged(nameof(CurrentPage));
         }

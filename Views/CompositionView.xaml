@@ -108,12 +108,20 @@
                   VerticalAlignment="Top"
                   HorizontalAlignment="Right"
                   Margin="0,370,0,0"
-                  IsChecked="{Binding IsGridVisible, Mode=TwoWay}">
-            
+                  IsChecked="{Binding CurrentCanvasSettings.ShowGrid, Mode=TwoWay}">
             <CheckBox.LayoutTransform>
                 <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
             </CheckBox.LayoutTransform>
-            
+        </CheckBox>
+
+        <CheckBox Content="Show Rulers"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right"
+                  Margin="0,390,0,0"
+                  IsChecked="{Binding CurrentCanvasSettings.ShowRulers, Mode=TwoWay}">
+            <CheckBox.LayoutTransform>
+                <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+            </CheckBox.LayoutTransform>
         </CheckBox>
 
         <!-- Main WORK AREA -->
@@ -123,33 +131,38 @@
               Margin="10,0,0,10">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="20" />
+                <RowDefinition Height="{Binding CurrentCanvasSettings.RulerHeight}" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="{Binding CurrentCanvasSettings.RulerHeight}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!-- top-left empty square -->
             <Border Grid.Row="0"
                     Grid.Column="0"
-                    Background="LightCyan"/>
+                    Background="LightCyan"
+                    Visibility="{Binding CurrentCanvasSettings.ShowRulers, Converter={StaticResource BoolToVis}}"/>
 
             <!-- horizontal ruler -->
-            <Canvas Grid.Row="0"
+            <Canvas x:Name="HorizontalRuler"
+                    Grid.Row="0"
                     Grid.Column="1"
                     Width="{Binding CurrentCanvasSettings.Width}"
-                    Height="20"
-                    Background="LightCoral"/>
+                    Height="{Binding CurrentCanvasSettings.RulerHeight}"
+                    Background="{Binding CurrentCanvasSettings.HorizontalRulerBrush}"
+                    Visibility="{Binding CurrentCanvasSettings.ShowRulers, Converter={StaticResource BoolToVis}}"/>
 
             <!-- vertical ruler -->
-            <Canvas Grid.Row="1"
+            <Canvas x:Name="VerticalRuler"
+                    Grid.Row="1"
                     Grid.Column="0"
-                    Width="20"
+                    Width="{Binding CurrentCanvasSettings.RulerHeight}"
                     Height="{Binding CurrentCanvasSettings.Height}"
-                    Background="LightBlue"/>
+                    Background="{Binding CurrentCanvasSettings.VerticalRulerBrush}"
+                    Visibility="{Binding CurrentCanvasSettings.ShowRulers, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Main CANVAS -->
             <Border BorderBrush="Black"
@@ -183,6 +196,7 @@
                         </ItemsControl.ItemContainerStyle>
 
                         <ItemsControl.Resources>
+                            
                             <DataTemplate DataType="{x:Type vm:ImageLayerViewModel}">
 
                                 <Grid Name="TranslateGrid">
@@ -314,10 +328,7 @@
 
                 </Canvas>
             </Border>
-
         </Grid>
-
-        
 
     </Grid>
 </UserControl>
