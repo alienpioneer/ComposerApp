@@ -39,12 +39,17 @@ namespace AppComposer.ViewModels.Composition
             Layers.Add(vm);
             SelectedLayer?.SwitchMode(LayerInteractionMode.None);
             SelectedLayer = vm;
+            SelectedLayer?.SwitchMode(LayerInteractionMode.Move);
         }
 
         public void AddTextLayer(TextLayer textLayer)
         {
             CompositionPage.Layers.Add(textLayer);
-            Layers.Add(new TextLayerViewModel(textLayer));
+            TextLayerViewModel vm = new TextLayerViewModel(textLayer);
+            Layers.Add(vm);
+            SelectedLayer?.SwitchMode(LayerInteractionMode.None);
+            SelectedLayer = vm;
+            SelectedLayer?.SwitchMode(LayerInteractionMode.Move);
         }
 
         public void RemoveSelectedLayer()
