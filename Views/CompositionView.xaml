@@ -132,12 +132,12 @@
               Margin="10,0,0,10">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="{Binding CurrentCanvasSettings.RulerSize}" />
+                <RowDefinition Height="{Binding CurrentCanvasSettings.RulerBandSize}" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding CurrentCanvasSettings.RulerSize}" />
+                <ColumnDefinition Width="{Binding CurrentCanvasSettings.RulerBandSize}" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -154,9 +154,9 @@
                     IsVertical="False"
                     Dpi="{Binding CurrentCanvasSettings.Dpi}"
                     FontSize="{Binding CurrentCanvasSettings.RulerFontSize}"
+                    RulerSize="{Binding CurrentCanvasSettings.RulerBandSize}"
                     Width="{Binding CurrentCanvasSettings.Width}"
-                    Height="{Binding CurrentCanvasSettings.RulerSize}"
-                    Background="{Binding CurrentCanvasSettings.HorizontalRulerBrush}"
+                    Height="{Binding CurrentCanvasSettings.RulerBandSize}"
                     Visibility="{Binding CurrentCanvasSettings.ShowRulers, Converter={StaticResource BoolToVis}}"/>
 
             <!-- vertical ruler -->
@@ -166,9 +166,9 @@
                     IsVertical="True"
                     Dpi="{Binding CurrentCanvasSettings.Dpi}"
                     FontSize="{Binding CurrentCanvasSettings.RulerFontSize}"
-                    Width="{Binding CurrentCanvasSettings.RulerSize}"
+                    RulerSize="{Binding CurrentCanvasSettings.RulerBandSize}"
+                    Width="{Binding CurrentCanvasSettings.RulerBandSize}"
                     Height="{Binding CurrentCanvasSettings.Height}"
-                    Background="{Binding CurrentCanvasSettings.VerticalRulerBrush}"
                     Visibility="{Binding CurrentCanvasSettings.ShowRulers, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Main CANVAS -->
