@@ -67,7 +67,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,100,10,0" />
+                Margin="0,90,10,0" />
 
         <Button Content="Remove"
                 Command="{Binding RemoveLayerCommand}"
@@ -76,7 +76,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,140,10,0" />
+                Margin="0,130,10,0" />
 
         <Button Content="Scale"
                 Command="{Binding ScaleLayerCommand}"
@@ -85,7 +85,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,180,10,0" />
+                Margin="0,170,10,0" />
 
         <Button Content="Rotate"
                 Command="{Binding RotateLayerCommand}"
@@ -94,7 +94,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,220,10,0" />
+                Margin="0,210,10,0" />
 
         <Button Content="Reset"
                 Command="{Binding ResetLayerCommand}"
@@ -103,7 +103,7 @@
                 Padding="0"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,260,10,0" />
+                Margin="0,250,10,0" />
 
         <CheckBox Content="Show Grid"
                   VerticalAlignment="Top"
@@ -213,7 +213,15 @@
                                         VerticalAlignment="Top"
                                         RenderTransformOrigin="0.5,0.5">
 
-                                        <Rectangle  Name="MainLayer"
+                                        <Image  Width="{Binding Layer.Width}"
+                                                Height="{Binding Layer.Height}"
+                                                Source="{Binding ImageLayer.Preview}"
+                                                Stretch="Fill"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/>
+
+                                        <!--Rectangle  Name="MainLayer"
                                                     Width="{Binding Layer.Width}"
                                                     Height="{Binding Layer.Height}"
                                                     Fill="DarkGray"
@@ -222,7 +230,18 @@
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Top"
                                                     RenderOptions.EdgeMode="Aliased"
-                                                    Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/>
+                                                    Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/-->
+
+                                        <Rectangle  Name="ImageSelectionOutline"
+                                                    Width="{Binding Layer.Width}"
+                                                    Height="{Binding Layer.Height}"
+                                                    Fill="Transparent"
+                                                    Stroke="black"
+                                                    StrokeThickness="{Binding SelectionBorderThickness}"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    RenderOptions.EdgeMode="Aliased"
+                                                    Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}"/>
 
                                         <Rectangle  Name="ScaleOutline"
                                                     Width="{Binding Layer.Width}"

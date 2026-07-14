@@ -2,8 +2,9 @@ using AppComposer.Commands;
 using AppComposer.Models;
 using AppComposer.Services;
 using AppComposer.ViewModels.Composition;
-using System.Windows.Input;
+using Microsoft.Win32;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace AppComposer.ViewModels
 {
@@ -24,12 +25,15 @@ namespace AppComposer.ViewModels
 
         public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
+        public ImageService ImageService { get; }
 
         public CompositionViewModel(MainWindowViewModel mainWindowViewModel)
         {
             m_mainWindowViewModel = mainWindowViewModel;
 
             CurrentCanvasSettings = new CanvasSettings();
+            ImageService = new ImageService();
+
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
             CurrentCanvasSettings.GridSize = ConfigurationService.Instance.GridSize;
@@ -87,13 +91,21 @@ namespace AppComposer.ViewModels
             Debug.WriteLine("Add image");
 
             // Test only
-            ImageLayer layer = new("");
-            layer.Height = 50;
-            layer.Width = 70;
-            layer.PosX = 0;
-            layer.PosY = 0;
+            //ImageLayer layer = new("");
+            //layer.Height = 50;
+            //layer.Width = 70;
+            //layer.PosX = 0;
+            //layer.PosY = 0;
 
-            CurrentPageVM?.AddImageLayer(layer);
+            //CurrentPageVM?.AddImageLayer(layer);
+
+            OpenFileDialog dlg = new();
+
+            if (dlg.ShowDialog() == true)
+            {
+                ImageLayer layer = ImageService.Load(dlg.FileName, CurrentCanvasSettings.Width, CurrentCanvasSettings.Height);
+                CurrentPageVM?.AddImageLayer(layer);
+            }
         }
 
         private void AddText()
