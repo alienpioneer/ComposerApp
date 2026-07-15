@@ -7,6 +7,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using static OpenCvSharp.LineIterator;
 
 namespace AppComposer.Services
 {
@@ -75,10 +76,11 @@ namespace AppComposer.Services
                     affineMatrix.Set(1, 2, m.OffsetY);
 
                     Mat transformed = new();
-                    Mat mask = new();
 
                     Cv2.WarpAffine(imageLayer.Bitmap, transformed, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height),
-                        InterpolationFlags.Nearest, BorderTypes.Constant, Scalar.White);
+                        InterpolationFlags.Linear, BorderTypes.Constant, Scalar.White);
+
+                    Mat mask = new();
 
                     Cv2.Compare(transformed, Scalar.Black, mask, CmpTypes.EQ);
 
@@ -99,7 +101,7 @@ namespace AppComposer.Services
                     using SKPaint paint = new()
                     {
                         Color = SKColors.Black,
-                        IsAntialias = false
+                        IsAntialias = true
                     };
 
                     canvas.DrawText(textLayer.Text, 0.0f, font.Size, SKTextAlign.Left, font, paint);
@@ -125,11 +127,12 @@ namespace AppComposer.Services
                     using Mat transformed = new();
 
                     Cv2.WarpAffine(textMat, transformed, affine, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height),
-                        InterpolationFlags.Nearest, BorderTypes.Constant, Scalar.White);
+                        InterpolationFlags.Linear, BorderTypes.Constant, Scalar.White);
 
                     // Mask the element
                     using Mat mask = new();
-                    Cv2.Compare(transformed,Scalar.Black, mask, CmpTypes.EQ);
+                    // if (pixel > threshold) pixel = 0 else pixel = maxval
+                    Cv2.Threshold(transformed, mask, 250, 255, ThresholdTypes.BinaryInv);
 
                     transformed.CopyTo(rendered, mask);
                 }

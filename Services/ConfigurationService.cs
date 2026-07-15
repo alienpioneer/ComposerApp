@@ -17,6 +17,8 @@ namespace AppComposer.Services
         public int RulerFontSize { get; }
         public int ScreenDpi { get; }
 
+        public int ImagePreviewSize { get; }
+
         public static void Initialize(string iniPath)
         {
             Instance = new ConfigurationService(iniPath);
@@ -36,6 +38,8 @@ namespace AppComposer.Services
             ScreenDpi = Int32.Parse(reader.GetValue("CANVAS", "ScreenDpi", "96"));
             RulerBandSize = Int32.Parse(reader.GetValue("CANVAS", "RulerBandSize", "20"));
             RulerFontSize = Int32.Parse(reader.GetValue("CANVAS", "RulerFontSize", "10"));
+
+            ImagePreviewSize = Int32.Parse(reader.GetValue("IMAGES", "PreviewResolution", "256"));
         }
 
     }
