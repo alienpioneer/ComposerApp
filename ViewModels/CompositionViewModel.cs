@@ -3,8 +3,10 @@ using AppComposer.Models;
 using AppComposer.Services;
 using AppComposer.ViewModels.Composition;
 using Microsoft.Win32;
+using System.IO;
 using System.Diagnostics;
 using System.Windows.Input;
+using AppComposer.Models.Layers;
 
 namespace AppComposer.ViewModels
 {
@@ -26,6 +28,7 @@ namespace AppComposer.ViewModels
         public CompositionPageViewModel? CurrentPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
         public ImageService ImageService { get; }
+        public CompositionService CompositionService { get; }
 
         public CompositionViewModel(MainWindowViewModel mainWindowViewModel)
         {
@@ -33,6 +36,7 @@ namespace AppComposer.ViewModels
 
             CurrentCanvasSettings = new CanvasSettings();
             ImageService = new ImageService();
+            CompositionService = new CompositionService();
 
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
@@ -71,10 +75,25 @@ namespace AppComposer.ViewModels
         {
             Debug.WriteLine("Save composition");
 
-            if (CurrentPageVM != null)
+            if (CurrentPageVM == null)
             {
-                // TODO Implement saving logic here
-                // For example, serialize CurrentPage to a file
+                Debug.WriteLine("Null CurrentPageVM");
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Save Project"
+            };
+
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
+                string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
+               
+                CompositionService.Save(CurrentPageVM.CompositionProject, projectName, parentDirectory);
             }
         }
 
@@ -84,20 +103,23 @@ namespace AppComposer.ViewModels
             // TODO Implement loading logic here
             // For example, deserialize a file to CurrentPage
             // After loading, call OnPropertyChanged(nameof(CurrentPage));
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Project files (*.json)|*.json",
+                Title = "Open Project"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string projectFile = dialog.FileName;
+                string projectFolder = Path.GetDirectoryName(projectFile)!;
+            }
         }
 
         private void AddImage()
         {
             Debug.WriteLine("Add image");
-
-            // Test only
-            //ImageLayer layer = new("");
-            //layer.Height = 50;
-            //layer.Width = 70;
-            //layer.PosX = 0;
-            //layer.PosY = 0;
-
-            //CurrentPageVM?.AddImageLayer(layer);
 
             OpenFileDialog dlg = new();
 

@@ -1,4 +1,5 @@
 ﻿using AppComposer.Models;
+using AppComposer.Models.Layers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -10,14 +11,14 @@ namespace AppComposer.ViewModels.Composition
     {
         bool m_isMouseDown = false;
 
-        private CompositionPage m_compositionPage;
+        private CompositionProject m_compositionProject;
 
-        public CompositionPage CompositionPage
+        public CompositionProject CompositionProject
         {
-            get => m_compositionPage;
+            get => m_compositionProject;
             set
             {
-                m_compositionPage = value;
+                m_compositionProject = value;
                 OnPropertyChanged();
             }
         }
@@ -28,28 +29,22 @@ namespace AppComposer.ViewModels.Composition
 
         public CompositionPageViewModel(CanvasSettings canvasSettings)        
         {
-            m_compositionPage = new CompositionPage(canvasSettings);
+            m_compositionProject = new CompositionProject(canvasSettings);
             Layers = new();
         }
 
         public void AddImageLayer(ImageLayer imageLayer)
         {
-            CompositionPage.Layers.Add(imageLayer);
+            CompositionProject.Layers.Add(imageLayer);
             ImageLayerViewModel vm = new ImageLayerViewModel(imageLayer);
             Layers.Add(vm);
-            SelectedLayer?.SwitchMode(LayerInteractionMode.None);
-            SelectedLayer = vm;
-            SelectedLayer?.SwitchMode(LayerInteractionMode.Move);
         }
 
         public void AddTextLayer(TextLayer textLayer)
         {
-            CompositionPage.Layers.Add(textLayer);
+            CompositionProject.Layers.Add(textLayer);
             TextLayerViewModel vm = new TextLayerViewModel(textLayer);
             Layers.Add(vm);
-            SelectedLayer?.SwitchMode(LayerInteractionMode.None);
-            SelectedLayer = vm;
-            SelectedLayer?.SwitchMode(LayerInteractionMode.Move);
         }
 
         public void RemoveSelectedLayer()
@@ -59,7 +54,7 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            CompositionPage.Layers.Remove(SelectedLayer.Layer);
+            CompositionProject.Layers.Remove(SelectedLayer.Layer);
             Layers.Remove(SelectedLayer);
             SelectedLayer = null;
         }

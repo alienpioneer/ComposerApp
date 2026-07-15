@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace AppComposer.Models
@@ -19,13 +19,17 @@ namespace AppComposer.Models
 
         public string BackgroundColor { get; set; } = "#FFBBBB";
 
+        [JsonIgnore]
         public int GridSize { get; set; } = 10;
-
+        [JsonIgnore]
         public int RulerBandSize { get; set; } = 20;
+        [JsonIgnore]
         public int RulerFontSize { get; set; } = 10;
+        [JsonIgnore]
         public int Dpi { get; set; } = 96;
 
         private bool m_showGrid = false;
+        [JsonIgnore]
         public bool ShowGrid
         {
             get => m_showGrid;
@@ -38,6 +42,7 @@ namespace AppComposer.Models
         }
 
         private bool m_showRulers = false;
+        [JsonIgnore]
         public bool ShowRulers
         {
             get => m_showRulers;
@@ -52,6 +57,7 @@ namespace AppComposer.Models
         {
         }
 
+        [JsonIgnore]
         public Brush CanvasBrush
         {
             get

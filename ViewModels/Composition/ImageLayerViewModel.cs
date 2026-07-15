@@ -1,4 +1,4 @@
-﻿using AppComposer.Models;
+﻿using AppComposer.Models.Layers;
 using System.ComponentModel;
 
 namespace AppComposer.ViewModels.Composition
