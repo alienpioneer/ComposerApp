@@ -10,6 +10,5 @@ namespace AppComposer.ViewModels.Composition
         public ImageLayerViewModel(ImageLayer layer) : base(layer)
         {
         }
-
     }
 }

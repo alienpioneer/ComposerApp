@@ -11,13 +11,25 @@ namespace AppComposer.Services
         
         }
 
-        public ImageLayer Load(string filename, int canvasWidth, int canvasHeight)
+        public ImageLayer LoadLayerBitmap(string filename, ImageLayer layer)
         {
             Mat image = Cv2.ImRead(filename, ImreadModes.Color);
-
             Mat bwImage = ConvertTo1bpp(image);
 
-            return new ImageLayer(filename, bwImage);
+            layer.SetBitmap(bwImage);
+
+            return layer;
+        }
+
+        public ImageLayer Load(string filename)
+        {
+            Mat image = Cv2.ImRead(filename, ImreadModes.Color);
+            Mat bwImage = ConvertTo1bpp(image);
+
+            ImageLayer layer = new ImageLayer(filename);
+            layer.SetBitmap(bwImage);
+
+            return layer;
         }
 
         public Mat ConvertTo1bpp(Mat image)

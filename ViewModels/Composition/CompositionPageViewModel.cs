@@ -11,17 +11,7 @@ namespace AppComposer.ViewModels.Composition
     {
         bool m_isMouseDown = false;
 
-        private CompositionProject m_compositionProject;
-
-        public CompositionProject CompositionProject
-        {
-            get => m_compositionProject;
-            set
-            {
-                m_compositionProject = value;
-                OnPropertyChanged();
-            }
-        }
+        public CompositionProject? CompositionProject { get; set; }
 
         public ObservableCollection<LayerBaseViewModel> Layers { get; set; }
 
@@ -29,22 +19,49 @@ namespace AppComposer.ViewModels.Composition
 
         public CompositionPageViewModel(CanvasSettings canvasSettings)        
         {
-            m_compositionProject = new CompositionProject(canvasSettings);
+            CompositionProject = new CompositionProject(canvasSettings);
             Layers = new();
+        }
+
+        public void LoadProject(CompositionProject project)
+        {
+            ClearCurrentView();
+            CompositionProject = project;
+
+            if (CompositionProject == null)
+            {
+                return;
+            }
+
+            foreach (LayerBase layer in CompositionProject.Layers)
+            {
+                if (layer is ImageLayer imageLayer)
+                {
+                    AddImageLayerViewModel(imageLayer);
+                }
+                else if (layer is TextLayer textLayer)
+                {
+                    AddTextLayerViewModel(textLayer);
+                }
+                else if (layer is CompositionLayer compositionLayer)
+                {
+                    // TODO
+                }
+            }
+
+            OnPropertyChanged();
         }
 
         public void AddImageLayer(ImageLayer imageLayer)
         {
-            CompositionProject.Layers.Add(imageLayer);
-            ImageLayerViewModel vm = new ImageLayerViewModel(imageLayer);
-            Layers.Add(vm);
+            CompositionProject?.Layers.Add(imageLayer);
+            AddImageLayerViewModel(imageLayer);
         }
 
         public void AddTextLayer(TextLayer textLayer)
         {
-            CompositionProject.Layers.Add(textLayer);
-            TextLayerViewModel vm = new TextLayerViewModel(textLayer);
-            Layers.Add(vm);
+            CompositionProject?.Layers.Add(textLayer);
+            AddTextLayerViewModel(textLayer);
         }
 
         public void RemoveSelectedLayer()
@@ -54,7 +71,7 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            CompositionProject.Layers.Remove(SelectedLayer.Layer);
+            CompositionProject?.Layers.Remove(SelectedLayer.Layer);
             Layers.Remove(SelectedLayer);
             SelectedLayer = null;
         }
@@ -69,6 +86,29 @@ namespace AppComposer.ViewModels.Composition
             SelectedLayer.ResetTransforms();
         }
 
+#region Internals
+
+        private void AddImageLayerViewModel(ImageLayer imageLayer)
+        {
+            Layers.Add(new ImageLayerViewModel(imageLayer));
+        }
+
+        private void AddTextLayerViewModel(TextLayer textLayer)
+        {
+            Layers.Add(new TextLayerViewModel(textLayer));
+        }
+
+        private void ClearCurrentView()
+        {
+            CompositionProject = null;
+            Layers.Clear();
+            SelectedLayer = null;
+        }
+
+#endregion
+
+#region Transformations
+
         public void SwitchToScaleMode()
         {
             if (SelectedLayer == null)
@@ -77,37 +117,6 @@ namespace AppComposer.ViewModels.Composition
             }
 
             SelectedLayer.SwitchMode(LayerInteractionMode.Scale);
-        }
-
-        public void OnMouseDown(Point p)
-        {
-            //Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
-            m_isMouseDown = true;
-            CheckMouseSelection(p);
-        }
-
-        public void OnMouseUp(Point p)
-        {
-            //Debug.WriteLine($"OnMouseUp {p.X} {p.Y}");
-            m_isMouseDown = false;
-            SelectedLayer?.UpdateBBox();
-        }
-
-        public void OnMouseMove(Point p)
-        {
-            if (!m_isMouseDown || SelectedLayer == null)
-            { 
-                return;
-            }
-
-            if(SelectedLayer.Mode == LayerInteractionMode.Scale)
-            {
-                ScaleSelectedLayer(p);
-            }
-            else if (SelectedLayer.Mode == LayerInteractionMode.Move)
-            {
-                MoveSelectedLayer(p);
-            }  
         }
 
         public void ScaleSelectedLayer(Point p)
@@ -144,6 +153,9 @@ namespace AppComposer.ViewModels.Composition
             SelectedLayer.RotateLayer();
         }
 
+#endregion
+
+#region MouseOperations
 
         private bool CheckScaleHandleSelection(Point p)
         {
@@ -198,5 +210,39 @@ namespace AppComposer.ViewModels.Composition
                 }
             }
         }
+
+        public void OnMouseDown(Point p)
+        {
+            //Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
+            m_isMouseDown = true;
+            CheckMouseSelection(p);
+        }
+
+        public void OnMouseUp(Point p)
+        {
+            //Debug.WriteLine($"OnMouseUp {p.X} {p.Y}");
+            m_isMouseDown = false;
+            SelectedLayer?.UpdateBBox();
+        }
+
+        public void OnMouseMove(Point p)
+        {
+            if (!m_isMouseDown || SelectedLayer == null)
+            {
+                return;
+            }
+
+            if (SelectedLayer.Mode == LayerInteractionMode.Scale)
+            {
+                ScaleSelectedLayer(p);
+            }
+            else if (SelectedLayer.Mode == LayerInteractionMode.Move)
+            {
+                MoveSelectedLayer(p);
+            }
+        }
+
+#endregion
+
     }
 }

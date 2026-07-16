@@ -10,7 +10,7 @@ namespace AppComposer.Views
     {
         // Important way to get the viewModel instance
         //private CompositionViewModel CompViewModel => (CompositionViewModel)DataContext;
-        private CompositionPageViewModel? CurrentPageVM =>((CompositionViewModel)DataContext).CurrentPageVM;
+        private CompositionPageViewModel CompositionPageVM => ((CompositionViewModel)DataContext).CompositionPageVM;
 
         public CompositionView()
         {
@@ -20,20 +20,20 @@ namespace AppComposer.Views
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(CompositionCanvas);
-            CurrentPageVM?.OnMouseDown(p);
+            CompositionPageVM.OnMouseDown(p);
             e.Handled = true;
         }
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             Point p = e.GetPosition(CompositionCanvas);
-            CurrentPageVM?.OnMouseMove(p);
+            CompositionPageVM.OnMouseMove(p);
         }
 
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(CompositionCanvas);
-            CurrentPageVM?.OnMouseUp(p);
+            CompositionPageVM.OnMouseUp(p);
             e.Handled = true;
         }
 

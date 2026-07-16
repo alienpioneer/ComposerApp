@@ -187,7 +187,7 @@
                         MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
 
                     <!-- Layers -->
-                    <ItemsControl ItemsSource="{Binding CurrentPageVM.Layers}">
+                    <ItemsControl ItemsSource="{Binding CompositionPageVM.Layers}">
 
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -220,17 +220,6 @@
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/>
-
-                                        <!--Rectangle  Name="MainLayer"
-                                                    Width="{Binding Layer.Width}"
-                                                    Height="{Binding Layer.Height}"
-                                                    Fill="DarkGray"
-                                                    Stroke="Black"
-                                                    StrokeThickness="{Binding SelectionBorderThickness}"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Top"
-                                                    RenderOptions.EdgeMode="Aliased"
-                                                    Visibility="{Binding Layer.IsVisible, Converter={StaticResource BoolToVis}}"/-->
 
                                         <Rectangle  Name="ImageSelectionOutline"
                                                     Width="{Binding Layer.Width}"

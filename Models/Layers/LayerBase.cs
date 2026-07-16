@@ -8,6 +8,7 @@ namespace AppComposer.Models.Layers
     [JsonPolymorphic]
     [JsonDerivedType(typeof(ImageLayer), "image")]
     [JsonDerivedType(typeof(TextLayer), "text")]
+    [JsonDerivedType(typeof(CompositionLayer), "composition")]
     public abstract class LayerBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;

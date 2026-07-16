@@ -1,12 +1,13 @@
 using AppComposer.Commands;
 using AppComposer.Models;
+using AppComposer.Models.Layers;
 using AppComposer.Services;
 using AppComposer.ViewModels.Composition;
 using Microsoft.Win32;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 using System.Windows.Input;
-using AppComposer.Models.Layers;
 
 namespace AppComposer.ViewModels
 {
@@ -25,7 +26,7 @@ namespace AppComposer.ViewModels
         public ICommand RotateLayerCommand { get; }
         public ICommand ResetLayerCommand { get; }
 
-        public CompositionPageViewModel? CurrentPageVM { get; private set; }
+        public CompositionPageViewModel CompositionPageVM { get; private set; }
         public CanvasSettings CurrentCanvasSettings { get; private set; }
         public ImageService ImageService { get; }
         public CompositionService CompositionService { get; }
@@ -36,7 +37,9 @@ namespace AppComposer.ViewModels
 
             CurrentCanvasSettings = new CanvasSettings();
             ImageService = new ImageService();
-            CompositionService = new CompositionService();
+            CompositionService = new CompositionService(ImageService);
+
+            CompositionPageVM = new CompositionPageViewModel(CurrentCanvasSettings);
 
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
@@ -50,36 +53,27 @@ namespace AppComposer.ViewModels
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);
             SaveCompositionCommand = new RelayCommand(SaveComposition, () => true);
             LoadCompositionCommand = new RelayCommand(LoadComposition, () => true);
-            AddImageCommand = new RelayCommand(AddImage, () => CurrentPageVM != null);
-            AddTextCommand = new RelayCommand(AddText, () => CurrentPageVM != null);
-            RemoveLayerCommand = new RelayCommand(RemoveLayer, () => CurrentPageVM != null);
-            ScaleLayerCommand = new RelayCommand(ScaleLayer, () => CurrentPageVM != null);
-            RotateLayerCommand = new RelayCommand(RotateLayer, () => CurrentPageVM != null);
-            ResetLayerCommand = new RelayCommand(ResetLayer, () => CurrentPageVM != null);
-
-            NewComposition();
+            AddImageCommand = new RelayCommand(AddImage, () => CompositionPageVM != null);
+            AddTextCommand = new RelayCommand(AddText, () => CompositionPageVM != null);
+            RemoveLayerCommand = new RelayCommand(RemoveLayer, () => CompositionPageVM != null);
+            ScaleLayerCommand = new RelayCommand(ScaleLayer, () => CompositionPageVM != null);
+            RotateLayerCommand = new RelayCommand(RotateLayer, () => CompositionPageVM != null);
+            ResetLayerCommand = new RelayCommand(ResetLayer, () => CompositionPageVM != null);
         }
 
         private void NewComposition()
         {
             Debug.WriteLine("New composition");
 
-            CurrentPageVM = new CompositionPageViewModel(CurrentCanvasSettings);
+            CompositionPageVM.LoadProject(new CompositionProject(CurrentCanvasSettings));
+            OnPropertyChanged(nameof(CompositionPageVM));
 
-            OnPropertyChanged(nameof(CurrentPageVM));
-
-            // TODO: Add logic to initialize a new composition page, e.g., clear existing layers, reset settings, etc.
+            // TODO: Add warning save/discard existing project
         }
 
         private void SaveComposition()
         {
             Debug.WriteLine("Save composition");
-
-            if (CurrentPageVM == null)
-            {
-                Debug.WriteLine("Null CurrentPageVM");
-                return;
-            }
 
             var dialog = new SaveFileDialog
             {
@@ -93,7 +87,7 @@ namespace AppComposer.ViewModels
                 string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
                 string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
                
-                CompositionService.Save(CurrentPageVM.CompositionProject, projectName, parentDirectory);
+                CompositionService.SaveProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
             }
         }
 
@@ -107,13 +101,22 @@ namespace AppComposer.ViewModels
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
                 Filter = "Project files (*.json)|*.json",
-                Title = "Open Project"
+                Title = "Load Project"
             };
 
             if (dialog.ShowDialog() == true)
             {
                 string projectFile = dialog.FileName;
                 string projectFolder = Path.GetDirectoryName(projectFile)!;
+
+                Debug.WriteLine($"Project folder {projectFolder}");
+
+                CompositionProject? project = CompositionService.LoadProject(projectFolder);
+
+                if (project != null)
+                {
+                    CompositionPageVM.LoadProject(project);
+                }
             }
         }
 
@@ -125,8 +128,8 @@ namespace AppComposer.ViewModels
 
             if (dlg.ShowDialog() == true)
             {
-                ImageLayer layer = ImageService.Load(dlg.FileName, CurrentCanvasSettings.Width, CurrentCanvasSettings.Height);
-                CurrentPageVM?.AddImageLayer(layer);
+                ImageLayer layer = ImageService.Load(dlg.FileName);
+                CompositionPageVM.AddImageLayer(layer);
             }
         }
 
@@ -138,31 +141,31 @@ namespace AppComposer.ViewModels
             TextLayer layer = new("Test","Cambria",32);
             layer.PosX = 0;
             layer.PosY = 0;
-            CurrentPageVM?.AddTextLayer(layer);
+            CompositionPageVM.AddTextLayer(layer);
         }
 
         private void RemoveLayer()
         {
             Debug.WriteLine("Remove layer");
-            CurrentPageVM?.RemoveSelectedLayer();
+            CompositionPageVM.RemoveSelectedLayer();
         }
 
         private void ScaleLayer()
         {
             Debug.WriteLine("Scale Mode");
-            CurrentPageVM?.SwitchToScaleMode();
+            CompositionPageVM.SwitchToScaleMode();
         }
 
         private void RotateLayer()
         {
             Debug.WriteLine("Rotate layer");
-            CurrentPageVM?.RotateSelectedLayer();
+            CompositionPageVM.RotateSelectedLayer();
         }
 
         private void ResetLayer()
         {
             Debug.WriteLine("Reset layer");
-            CurrentPageVM?.ResetSelectedLayer();
+            CompositionPageVM.ResetSelectedLayer();
         }
     }
 }

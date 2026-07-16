@@ -7,9 +7,11 @@ namespace AppComposer.Models
     {
         public Guid Id { get; set; }
 
-        public String Name { get; set; }
+        public String Name { get; set; } = "";
 
         public CanvasSettings CanvasSettings { get; set; }
+
+        //public ProjectSettings ProjectSettings { get; set; }
 
         public List<LayerBase> Layers { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using AppComposer.Models;
 using AppComposer.Models.Layers;
 using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
 using SkiaSharp;
 using System.Diagnostics;
 using System.IO;
@@ -13,18 +14,52 @@ namespace AppComposer.Services
 {
     public class CompositionService
     {
+        private readonly ImageService _imageService;
 
-        public CompositionService()
+        public CompositionService(ImageService imageService)
         {
+            _imageService = imageService;
         }
 
-        public void Load()
+        public CompositionProject? LoadProject(string projectDirectory)
         {
+            string jsonPath = Path.Combine(projectDirectory, "project.json");
 
+            string projectJsonData = File.ReadAllText(jsonPath);
+
+            CompositionProject? project = JsonSerializer.Deserialize<CompositionProject>(projectJsonData);
+
+            if (project == null)
+            {
+                Debug.WriteLine($"LoadProject  failed to deserialize {projectDirectory}/project.json");
+                return null;
+            }
+
+            foreach (LayerBase layer in project.Layers)
+            {
+                if (layer is ImageLayer imageLayer)
+                {
+                    string fullPath = Path.Combine(projectDirectory, imageLayer.PreviewPath);
+
+                    _imageService.LoadLayerBitmap(fullPath, imageLayer);
+                }
+                else if (layer is CompositionLayer compositionLayer)
+                {
+                    // TODO
+                }
+            }
+
+            return project;
         }
 
-        public void Save(CompositionProject project, String compositionName, String parentDirectory)
+        public void SaveProject(CompositionProject project, string compositionName, string parentDirectory)
         {
+            if(project == null)
+            {
+                Debug.WriteLine("Can't save a null CompositionProject");
+                return;
+            }
+
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
@@ -35,7 +70,7 @@ namespace AppComposer.Services
 
             project.Name = compositionName;
 
-            Debug.WriteLine($"{projectDirectory}");
+            //Debug.WriteLine($"{projectDirectory}");
 
             Directory.CreateDirectory(projectDirectory);
             Directory.CreateDirectory(Path.Combine(projectDirectory, "layers"));
@@ -46,11 +81,6 @@ namespace AppComposer.Services
             string json = JsonSerializer.Serialize(project, options);
 
             File.WriteAllText( Path.Combine(projectDirectory, "project.json"), json);
-        }
-
-        public void Export()
-        {
-
         }
 
         public void RenderComposition(CompositionProject project, string projectDirectory)
@@ -143,6 +173,7 @@ namespace AppComposer.Services
                 //Save preview
                 Mat preview = new();
 
+                // TODO Get Preview Size from project settings
                 double scale = Math.Min(256.0 / rendered.Width, 256.0 / rendered.Height);
 
                 Cv2.Resize(rendered, preview, new Size(0, 0), scale, scale, InterpolationFlags.Area);
@@ -164,9 +195,5 @@ namespace AppComposer.Services
             }
         }
 
-        public void Delete()
-        {
-
-        }
     }
 }
