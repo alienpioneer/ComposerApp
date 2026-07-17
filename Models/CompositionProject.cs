@@ -7,19 +7,20 @@ namespace AppComposer.Models
     {
         public Guid Id { get; set; }
 
-        public String Name { get; set; } = "";
+        public string Name { get; set; } = "";
 
+        // TODO update canvas when loading accordingly
         public CanvasSettings CanvasSettings { get; set; }
 
-        //public ProjectSettings ProjectSettings { get; set; }
+        // TODO public ProjectSettings ProjectSettings { get; set; }
 
         public List<LayerBase> Layers { get; set; }
 
-        public string? PreviewImageName { get; set; }
+        public string PreviewImageName { get; } = "preview.bmp";
 
-        public string? RenderedImageName { get; set; }
+        public string RenderedImageName { get; set; } = "rendered.bmp";
 
-        public int Version { get; set; } = 1;
+        public string Version { get; set; } = "1.00";
 
         public CompositionProject(CanvasSettings canvasSettings)
         {

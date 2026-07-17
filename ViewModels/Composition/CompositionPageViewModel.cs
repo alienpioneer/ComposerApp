@@ -45,7 +45,7 @@ namespace AppComposer.ViewModels.Composition
                 }
                 else if (layer is CompositionLayer compositionLayer)
                 {
-                    // TODO
+                    AddCompositionLayerViewModel(compositionLayer);
                 }
             }
 
@@ -62,6 +62,12 @@ namespace AppComposer.ViewModels.Composition
         {
             CompositionProject?.Layers.Add(textLayer);
             AddTextLayerViewModel(textLayer);
+        }
+
+        public void AddCompositionLayer(CompositionLayer compositionLayer)
+        {
+            CompositionProject?.Layers.Add(compositionLayer);
+            AddCompositionLayerViewModel(compositionLayer);
         }
 
         public void RemoveSelectedLayer()
@@ -96,6 +102,11 @@ namespace AppComposer.ViewModels.Composition
         private void AddTextLayerViewModel(TextLayer textLayer)
         {
             Layers.Add(new TextLayerViewModel(textLayer));
+        }
+
+        private void AddCompositionLayerViewModel(CompositionLayer compositionLayer)
+        {
+            Layers.Add(new CompositionLayerViewModel(compositionLayer));
         }
 
         private void ClearCurrentView()

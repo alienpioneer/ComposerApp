@@ -21,6 +21,7 @@ namespace AppComposer.ViewModels
         public ICommand LoadCompositionCommand { get; }
         public ICommand AddImageCommand { get; }
         public ICommand AddTextCommand { get; }
+        public ICommand AddCompositionCommand { get; }
         public ICommand RemoveLayerCommand { get; }
         public ICommand ScaleLayerCommand { get; }
         public ICommand RotateLayerCommand { get; }
@@ -53,8 +54,9 @@ namespace AppComposer.ViewModels
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);
             SaveCompositionCommand = new RelayCommand(SaveComposition, () => true);
             LoadCompositionCommand = new RelayCommand(LoadComposition, () => true);
-            AddImageCommand = new RelayCommand(AddImage, () => CompositionPageVM != null);
-            AddTextCommand = new RelayCommand(AddText, () => CompositionPageVM != null);
+            AddImageCommand = new RelayCommand(AddImageLayer, () => CompositionPageVM != null);
+            AddTextCommand = new RelayCommand(AddTextLayer, () => CompositionPageVM != null);
+            AddCompositionCommand = new RelayCommand(AddCompositionLayer, () => CompositionPageVM != null);
             RemoveLayerCommand = new RelayCommand(RemoveLayer, () => CompositionPageVM != null);
             ScaleLayerCommand = new RelayCommand(ScaleLayer, () => CompositionPageVM != null);
             RotateLayerCommand = new RelayCommand(RotateLayer, () => CompositionPageVM != null);
@@ -87,16 +89,13 @@ namespace AppComposer.ViewModels
                 string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
                 string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
                
-                CompositionService.SaveProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
+                CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
             }
         }
 
         private void LoadComposition()
         {
             Debug.WriteLine("Load composition");
-            // TODO Implement loading logic here
-            // For example, deserialize a file to CurrentPage
-            // After loading, call OnPropertyChanged(nameof(CurrentPage));
 
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
@@ -109,9 +108,9 @@ namespace AppComposer.ViewModels
                 string projectFile = dialog.FileName;
                 string projectFolder = Path.GetDirectoryName(projectFile)!;
 
-                Debug.WriteLine($"Project folder {projectFolder}");
+                //Debug.WriteLine($"Project folder {projectFolder}");
 
-                CompositionProject? project = CompositionService.LoadProject(projectFolder);
+                CompositionProject? project = CompositionService.LoadCompositionProject(projectFolder);
 
                 if (project != null)
                 {
@@ -120,28 +119,50 @@ namespace AppComposer.ViewModels
             }
         }
 
-        private void AddImage()
+        private void AddImageLayer()
         {
-            Debug.WriteLine("Add image");
+            Debug.WriteLine("Add image layer");
 
             OpenFileDialog dlg = new();
 
             if (dlg.ShowDialog() == true)
             {
-                ImageLayer layer = ImageService.Load(dlg.FileName);
+                ImageLayer layer = ImageService.LoadImageBitmapToLayer(dlg.FileName);
                 CompositionPageVM.AddImageLayer(layer);
             }
         }
 
-        private void AddText()
+        private void AddTextLayer()
         {
-            Debug.WriteLine("Add text");
+            Debug.WriteLine("Add text layer");
 
-            // Test only
+            // TODO Text dialog Test only
             TextLayer layer = new("Test","Cambria",32);
             layer.PosX = 0;
             layer.PosY = 0;
             CompositionPageVM.AddTextLayer(layer);
+        }
+
+        private void AddCompositionLayer()
+        {
+            Debug.WriteLine("Add composition layer");
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Project files (*.json)|*.json",
+                Title = "Load Composition Layer"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                CompositionLayer? layer = CompositionService.LoadCompositionLayer(dialog.FileName);
+
+                if (layer != null)
+                {
+                    Debug.WriteLine($"Loaded composition layer from {dialog.FileName}");
+                    CompositionPageVM.AddCompositionLayer(layer);
+                }
+            }
         }
 
         private void RemoveLayer()
