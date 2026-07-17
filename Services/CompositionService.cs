@@ -95,19 +95,20 @@ namespace AppComposer.Services
 
             string projectDirectory = Path.Combine(parentDirectory, compositionName);
 
-            project.Name = compositionName;
-
             //Debug.WriteLine($"{projectDirectory}");
 
             Directory.CreateDirectory(projectDirectory);
             Directory.CreateDirectory(Path.Combine(projectDirectory, "layers"));
+            string projectJsonPath = Path.Combine(projectDirectory, "project.json");
 
             SaveProjectImageLayers(project, projectDirectory);
             ImageService.RenderComposition(project, projectDirectory);
 
             string json = JsonSerializer.Serialize(project, options);
+            File.WriteAllText(projectJsonPath, json);
 
-            File.WriteAllText( Path.Combine(projectDirectory, "project.json"), json);
+            project.ProjectFile = projectJsonPath;
+            project.Name = compositionName;
         }
 
         public static void SaveProjectImageLayers(CompositionProject project, string projectDirectory)

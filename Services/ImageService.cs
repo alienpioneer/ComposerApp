@@ -179,23 +179,23 @@ namespace AppComposer.Services
 
                     transformed.CopyTo(rendered, mask);
                 }
-
-                string renderedImagePath = Path.Combine(projectDirectory, project.RenderedImageName);
-                string previewImagePath = Path.Combine(projectDirectory, project.PreviewImageName);
-
-                // Save the rendered image
-                Cv2.ImWrite(renderedImagePath, rendered);
-
-                //Save preview
-                Mat preview = new();
-
-                // TODO Get Preview Size from project settings
-                double scale = Math.Min(256.0 / rendered.Width, 256.0 / rendered.Height);
-
-                Cv2.Resize(rendered, preview, new Size(0, 0), scale, scale, InterpolationFlags.Area);
-
-                Cv2.ImWrite(previewImagePath, preview);
             }
+
+            string renderedImagePath = Path.Combine(projectDirectory, project.RenderedImageName);
+            string previewImagePath = Path.Combine(projectDirectory, project.PreviewImageName);
+
+            // Save the rendered image
+            Cv2.ImWrite(renderedImagePath, rendered);
+
+            //Save preview
+            Mat preview = new();
+
+            // TODO Get Preview Size from project settings
+            double scale = Math.Min(256.0 / rendered.Width, 256.0 / rendered.Height);
+
+            Cv2.Resize(rendered, preview, new Size(0, 0), scale, scale, InterpolationFlags.Area);
+
+            Cv2.ImWrite(previewImagePath, preview);
         }
     }
 }

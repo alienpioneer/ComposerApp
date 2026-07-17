@@ -9,6 +9,8 @@ namespace AppComposer.Models
 
         public string Name { get; set; } = "";
 
+        public string ProjectFile { get; set; } = "";
+
         // TODO update canvas when loading accordingly
         public CanvasSettings CanvasSettings { get; set; }
 

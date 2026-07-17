@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Input;
 
 namespace AppComposer.ViewModels
@@ -17,7 +18,7 @@ namespace AppComposer.ViewModels
 
         public ICommand ShowHomeCommand { get; }
         public ICommand NewCompositionCommand { get; }
-        public ICommand SaveCompositionCommand { get; }
+        public ICommand SaveAsCompositionCommand { get; }
         public ICommand LoadCompositionCommand { get; }
         public ICommand AddImageCommand { get; }
         public ICommand AddTextCommand { get; }
@@ -52,7 +53,7 @@ namespace AppComposer.ViewModels
 
             ShowHomeCommand = new RelayCommand(() => m_mainWindowViewModel.ShowHome(), () => true);
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);
-            SaveCompositionCommand = new RelayCommand(SaveComposition, () => true);
+            SaveAsCompositionCommand = new RelayCommand(SaveAsComposition, () => true);
             LoadCompositionCommand = new RelayCommand(LoadComposition, () => true);
             AddImageCommand = new RelayCommand(AddImageLayer, () => CompositionPageVM != null);
             AddTextCommand = new RelayCommand(AddTextLayer, () => CompositionPageVM != null);
@@ -73,24 +74,42 @@ namespace AppComposer.ViewModels
             // TODO: Add warning save/discard existing project
         }
 
-        private void SaveComposition()
+        private void SaveAsComposition()
         {
-            Debug.WriteLine("Save composition");
+            Debug.WriteLine("SaveAs composition");
 
             var dialog = new SaveFileDialog
             {
                 Title = "Save Project"
             };
 
-            bool? result = dialog.ShowDialog();
-
-            if (result == true)
+            if (dialog.ShowDialog() == false)
             {
-                string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
-                string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
-               
-                CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
+                Debug.WriteLine("Internal dialog window problem while saving composition");
+                return;
             }
+
+            string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
+            string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
+            string projectDirectory = Path.Combine(parentDirectory, projectName);
+
+            if (Directory.Exists(projectDirectory))
+            {
+                var result = MessageBox.Show(
+                    $"The project '{projectName}' already exists.\n\nOverwrite it?",
+                    "Overwrite",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                Directory.Delete(projectDirectory, true);
+            }
+
+            CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
         }
 
         private void LoadComposition()

@@ -42,8 +42,8 @@
                 VerticalAlignment="Top"
                 Margin="110,10,0,0" />
 
-        <Button Content="Save Comp"
-                Command="{Binding SaveCompositionCommand}"
+        <Button Content="SaveAs"
+                Command="{Binding SaveAsCompositionCommand}"
                 Width="80"
                 Height="30"
                 Padding="0"
