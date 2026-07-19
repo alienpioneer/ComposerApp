@@ -202,9 +202,6 @@ namespace AppComposer.ViewModels.Composition
             OnPropertyChanged(nameof(BBoxWidth));
             OnPropertyChanged(nameof(BBoxHeight));
             OnPropertyChanged(nameof(ScaleGizmoMargin));
-
-            //Debug.WriteLine(matrix);
-            //Debug.WriteLine(matrix.Transform(new Point(0, 0)));
         }
 
         private Matrix BuildTransformationMatrix()

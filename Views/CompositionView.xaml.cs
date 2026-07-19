@@ -1,5 +1,6 @@
 ﻿using AppComposer.ViewModels;
 using AppComposer.ViewModels.Composition;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,7 +21,8 @@ namespace AppComposer.Views
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Point p = e.GetPosition(CompositionCanvas);
-            CompositionPageVM.OnMouseDown(p);
+            CompositionPageVM.OnMouseDown(p, e.ClickCount);
+
             e.Handled = true;
         }
 

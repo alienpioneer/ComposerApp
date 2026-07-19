@@ -1,9 +1,9 @@
-﻿using AppComposer.Models;
-using AppComposer.Models.Layers;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-
 using System.Windows;
+using AppComposer.Models;
+using AppComposer.Models.Layers;
+using AppComposer.Views;
 
 namespace AppComposer.ViewModels.Composition
 {
@@ -262,11 +262,49 @@ namespace AppComposer.ViewModels.Composition
             }
         }
 
-        public void OnMouseDown(Point p)
+        public void OnMouseDown(Point p, int clickCount)
         {
             //Debug.WriteLine($"OnMouseDown {p.X} {p.Y}");
-            m_isMouseDown = true;
-            CheckMouseSelection(p);
+
+            if (clickCount == 1)
+            {
+                m_isMouseDown = true;
+                CheckMouseSelection(p);
+            }
+            else if (clickCount == 2)
+            {
+                if ( SelectedLayer != null && SelectedLayer is TextLayerViewModel textLayerVM)
+                {
+                    // Open text dialog for editing
+                    var textDialogVM = new TextDialogViewModel
+                    {
+                        Text = textLayerVM.TextLayer.Text,
+                        SelectedFont = textLayerVM.TextLayer.FontName,
+                        FontSize = textLayerVM.TextLayer.FontSize
+                    };
+
+                    var textDialog = new TextDialog(textDialogVM);
+
+                    if (textDialog.ShowDialog() != true)
+                    {
+                        return;
+                    }
+
+                    // Update the layer with the new text properties
+                    textLayerVM.TextLayer.Text = textDialogVM.Text;
+                    textLayerVM.TextLayer.FontName = textDialogVM.SelectedFont;
+                    textLayerVM.TextLayer.FontSize = textDialogVM.FontSize;
+
+                    // Mark the project as modified
+                    if (CompositionProject != null)
+                    {
+                        CompositionProject.IsModified = true;
+                    }
+
+                    // Update the bounding box of the layer
+                    SelectedLayer.UpdateBBox();
+                }
+            }
         }
 
         public void OnMouseUp(Point p)

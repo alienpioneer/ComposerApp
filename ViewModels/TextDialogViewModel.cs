@@ -9,7 +9,7 @@ namespace AppComposer.ViewModels
 
         public string SelectedFont { get; set; }
 
-        public double FontSize { get; set; }
+        public int FontSize { get; set; }
 
         public ObservableCollection<string> TextFonts { get; }
 
@@ -17,14 +17,13 @@ namespace AppComposer.ViewModels
 
         public TextDialogViewModel()
         {
-            Text = "NoText";
+            Text = "Text";
             SelectedFont = "Arial";
             FontSize = 32;
 
             TextFonts = new ObservableCollection<string>(Fonts.SystemFontFamilies.Select(f => f.Source).OrderBy(f => f));
 
             AvailableFontSizes = new ObservableCollection<int>{ 8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72 };
-
         }
     }
 }
