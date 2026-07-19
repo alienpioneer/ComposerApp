@@ -1,8 +1,10 @@
-﻿using AppComposer.Models;
+﻿using AppComposer.Helpers;
+using AppComposer.Models;
 using AppComposer.Models.Layers;
 using OpenCvSharp;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Text.Json;
 
 
@@ -51,6 +53,8 @@ namespace AppComposer.Services
         {
             string jsonPath = Path.Combine(projectDirectory, "project.json");
 
+            Debug.WriteLine($"Loading project {jsonPath}");
+
             string projectJsonData = File.ReadAllText(jsonPath);
 
             CompositionProject? project = JsonSerializer.Deserialize<CompositionProject>(projectJsonData);
@@ -79,7 +83,7 @@ namespace AppComposer.Services
             return project;
         }
 
-        public static void SaveCompositionProject(CompositionProject? project, string compositionName, string parentDirectory)
+        public static void SaveCompositionProject(CompositionProject? project, string destinationProjectPath, string parentDirectory)
         {
             if(project == null)
             {
@@ -87,28 +91,33 @@ namespace AppComposer.Services
                 return;
             }
 
+            string projectName = Path.GetFileNameWithoutExtension(destinationProjectPath);
+            string projectDirectory = Path.Combine(parentDirectory, projectName);
+
+            project.ProjectFile = destinationProjectPath;
+            project.Name = projectName;
+
+            //Debug.WriteLine($"Saving project name {projectName}");
+            //Debug.WriteLine($"Saving project to {Path.GetDirectoryName(destinationProjectPath)}");
+
+            Directory.CreateDirectory(projectDirectory);
+            Directory.CreateDirectory(Path.Combine(projectDirectory, "layers"));
+
+            string projectJsonPath = Path.Combine(projectDirectory, "project.json");
+
+            SaveProjectImageLayers(project, projectDirectory);
+            ImageService.RenderComposition(project, projectDirectory);
+
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 //ReferenceHandler = ReferenceHandler.Preserve
             };
 
-            string projectDirectory = Path.Combine(parentDirectory, compositionName);
-
-            //Debug.WriteLine($"{projectDirectory}");
-
-            Directory.CreateDirectory(projectDirectory);
-            Directory.CreateDirectory(Path.Combine(projectDirectory, "layers"));
-            string projectJsonPath = Path.Combine(projectDirectory, "project.json");
-
-            SaveProjectImageLayers(project, projectDirectory);
-            ImageService.RenderComposition(project, projectDirectory);
-
             string json = JsonSerializer.Serialize(project, options);
             File.WriteAllText(projectJsonPath, json);
 
-            project.ProjectFile = projectJsonPath;
-            project.Name = compositionName;
+            project.IsModified = false;
         }
 
         public static void SaveProjectImageLayers(CompositionProject project, string projectDirectory)

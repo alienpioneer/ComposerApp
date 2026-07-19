@@ -1,5 +1,6 @@
 ﻿using AppComposer.Models.Layers;
 using System;
+using System.Text.Json.Serialization;
 
 namespace AppComposer.Models
 {
@@ -23,6 +24,9 @@ namespace AppComposer.Models
         public string RenderedImageName { get; set; } = "rendered.bmp";
 
         public string Version { get; set; } = "1.00";
+
+        [JsonIgnore]
+        public bool IsModified { get; set; } = false;
 
         public CompositionProject(CanvasSettings canvasSettings)
         {

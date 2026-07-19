@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace AppComposer.Services
+namespace AppComposer.Helpers
 {
     public class IniReader
     {

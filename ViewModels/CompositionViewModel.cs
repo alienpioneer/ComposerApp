@@ -1,4 +1,5 @@
 using AppComposer.Commands;
+using AppComposer.Helpers;
 using AppComposer.Models;
 using AppComposer.Models.Layers;
 using AppComposer.Services;
@@ -6,6 +7,7 @@ using AppComposer.ViewModels.Composition;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
@@ -19,6 +21,7 @@ namespace AppComposer.ViewModels
         public ICommand ShowHomeCommand { get; }
         public ICommand NewCompositionCommand { get; }
         public ICommand SaveAsCompositionCommand { get; }
+        public ICommand SaveCompositionCommand { get; }
         public ICommand LoadCompositionCommand { get; }
         public ICommand AddImageCommand { get; }
         public ICommand AddTextCommand { get; }
@@ -54,6 +57,7 @@ namespace AppComposer.ViewModels
             ShowHomeCommand = new RelayCommand(() => m_mainWindowViewModel.ShowHome(), () => true);
             NewCompositionCommand = new RelayCommand(NewComposition, () => true);
             SaveAsCompositionCommand = new RelayCommand(SaveAsComposition, () => true);
+            SaveCompositionCommand = new RelayCommand(SaveComposition, () => true);
             LoadCompositionCommand = new RelayCommand(LoadComposition, () => true);
             AddImageCommand = new RelayCommand(AddImageLayer, () => CompositionPageVM != null);
             AddTextCommand = new RelayCommand(AddTextLayer, () => CompositionPageVM != null);
@@ -64,14 +68,82 @@ namespace AppComposer.ViewModels
             ResetLayerCommand = new RelayCommand(ResetLayer, () => CompositionPageVM != null);
         }
 
+        private bool ConfirmDiscardChanges()
+        {
+            if (CompositionPageVM.CompositionProject != null &&
+                CompositionPageVM.CompositionProject.IsModified)
+            {
+                var result = MessageBox.Show(
+                    $"All the changes you made will be lost.\n\nAre you sure?",
+                    "Warning",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private void NewComposition()
         {
             Debug.WriteLine("New composition");
 
-            CompositionPageVM.LoadProject(new CompositionProject(CurrentCanvasSettings));
-            OnPropertyChanged(nameof(CompositionPageVM));
+            if (!ConfirmDiscardChanges())
+            { 
+                return;
+            }
 
-            // TODO: Add warning save/discard existing project
+            CompositionPageVM.LoadProjectVM(new CompositionProject(CurrentCanvasSettings));
+            OnPropertyChanged(nameof(CompositionPageVM));
+        }
+
+        private void LoadComposition()
+        {
+            Debug.WriteLine("Load composition");
+
+            if (!ConfirmDiscardChanges())
+            {
+                return;
+            }
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Composition Project (*.comp)|*.comp",
+                Title = "Load Project"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                string projectFile = dialog.FileName;
+                string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
+
+                //Debug.WriteLine($"Project folder {projectFolder}");
+
+                using (var temp = new TemporaryProjectDirectory())
+                {
+                    Debug.WriteLine($"Extracting project file {projectFile} to {temp.Path}");
+
+                    ZipFile.ExtractToDirectory(projectFile, temp.Path);
+
+                    Debug.WriteLine($"Loading project from {temp.Path}");
+
+                    CompositionProject? project = CompositionService.LoadCompositionProject(Path.Combine(temp.Path, projectName));
+
+                    if (project != null)
+                    {
+                        CompositionPageVM.LoadProjectVM(project);
+                    }
+
+                    if (CompositionPageVM.CompositionProject != null)
+                    {
+                        CompositionPageVM.CompositionProject.IsModified = false;
+                    }
+                }
+            }
         }
 
         private void SaveAsComposition()
@@ -80,7 +152,11 @@ namespace AppComposer.ViewModels
 
             var dialog = new SaveFileDialog
             {
-                Title = "Save Project"
+                Title = "Save Project",
+                Filter = "Composition Project (*.comp)|*.comp",
+                DefaultExt = ".comp",
+                AddExtension = true,
+                OverwritePrompt = true
             };
 
             if (dialog.ShowDialog() == false)
@@ -89,52 +165,45 @@ namespace AppComposer.ViewModels
                 return;
             }
 
-            string parentDirectory = Path.GetDirectoryName(dialog.FileName)!;
-            string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
-            string projectDirectory = Path.Combine(parentDirectory, projectName);
-
-            if (Directory.Exists(projectDirectory))
+            using (var temp = new TemporaryProjectDirectory())
             {
-                var result = MessageBox.Show(
-                    $"The project '{projectName}' already exists.\n\nOverwrite it?",
-                    "Overwrite",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, dialog.FileName, temp.Path);
 
-                if (result != MessageBoxResult.Yes)
-                {
-                    return;
-                }
-
-                Directory.Delete(projectDirectory, true);
+                ZipFile.CreateFromDirectory(temp.Path, dialog.FileName, CompressionLevel.Optimal, false); 
             }
 
-            CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, projectName, parentDirectory);
+            if (CompositionPageVM.CompositionProject != null)
+            {
+                CompositionPageVM.CompositionProject.IsModified = false;
+            }
         }
 
-        private void LoadComposition()
+        private void SaveComposition()
         {
-            Debug.WriteLine("Load composition");
+            Debug.WriteLine("Save composition");
 
-            var dialog = new Microsoft.Win32.OpenFileDialog
+            if (string.IsNullOrWhiteSpace(CompositionPageVM.CompositionProject?.ProjectFile))
             {
-                Filter = "Project files (*.json)|*.json",
-                Title = "Load Project"
-            };
+                SaveAsComposition();
+                return;
+            }
 
-            if (dialog.ShowDialog() == true)
+            using (var temp = new TemporaryProjectDirectory())
             {
-                string projectFile = dialog.FileName;
-                string projectFolder = Path.GetDirectoryName(projectFile)!;
+                CompositionService.SaveCompositionProject(
+                    CompositionPageVM.CompositionProject, 
+                    CompositionPageVM.CompositionProject.ProjectFile,
+                    temp.Path);
 
-                //Debug.WriteLine($"Project folder {projectFolder}");
+                // Replace existing archive
+                File.Delete(CompositionPageVM.CompositionProject.ProjectFile);
 
-                CompositionProject? project = CompositionService.LoadCompositionProject(projectFolder);
+                ZipFile.CreateFromDirectory(temp.Path, CompositionPageVM.CompositionProject.ProjectFile, CompressionLevel.Optimal, false);
+            }
 
-                if (project != null)
-                {
-                    CompositionPageVM.LoadProject(project);
-                }
+            if (CompositionPageVM.CompositionProject != null)
+            {
+                CompositionPageVM.CompositionProject.IsModified = false;
             }
         }
 

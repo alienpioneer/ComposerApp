@@ -23,7 +23,7 @@ namespace AppComposer.ViewModels.Composition
             Layers = new();
         }
 
-        public void LoadProject(CompositionProject project)
+        public void LoadProjectVM(CompositionProject project)
         {
             ClearCurrentView();
             CompositionProject = project;
@@ -54,19 +54,34 @@ namespace AppComposer.ViewModels.Composition
 
         public void AddImageLayer(ImageLayer imageLayer)
         {
-            CompositionProject?.Layers.Add(imageLayer);
+            if (CompositionProject != null)
+            {
+                CompositionProject.Layers.Add(imageLayer);
+                CompositionProject.IsModified = true;
+            }
+            
             AddImageLayerViewModel(imageLayer);
         }
 
         public void AddTextLayer(TextLayer textLayer)
         {
-            CompositionProject?.Layers.Add(textLayer);
+            if (CompositionProject != null)
+            {
+                CompositionProject.Layers.Add(textLayer);
+                CompositionProject.IsModified = true;
+            }
+            
             AddTextLayerViewModel(textLayer);
         }
 
         public void AddCompositionLayer(CompositionLayer compositionLayer)
         {
-            CompositionProject?.Layers.Add(compositionLayer);
+            if (CompositionProject != null)
+            {
+                CompositionProject.Layers.Add(compositionLayer);
+                CompositionProject.IsModified = true;
+            }
+
             AddCompositionLayerViewModel(compositionLayer);
         }
 
@@ -77,7 +92,12 @@ namespace AppComposer.ViewModels.Composition
                 return;
             }
 
-            CompositionProject?.Layers.Remove(SelectedLayer.Layer);
+            if (CompositionProject != null)
+            {
+                CompositionProject.Layers.Remove(SelectedLayer.Layer);
+                CompositionProject.IsModified = true;
+            }
+
             Layers.Remove(SelectedLayer);
             SelectedLayer = null;
         }
@@ -87,6 +107,11 @@ namespace AppComposer.ViewModels.Composition
             if (SelectedLayer == null)
             {
                 return;
+            }
+
+            if (CompositionProject != null)
+            {
+                CompositionProject.IsModified = true;
             }
 
             SelectedLayer.ResetTransforms();
@@ -140,6 +165,11 @@ namespace AppComposer.ViewModels.Composition
             //Debug.WriteLine($"ScaleSelectedLayer()");
 
             SelectedLayer.ScaleLayer(p);
+
+            if (CompositionProject != null)
+            {
+                CompositionProject.IsModified = true;
+            }
         }
 
         public void MoveSelectedLayer(Point p)
@@ -152,6 +182,11 @@ namespace AppComposer.ViewModels.Composition
             //Debug.WriteLine($"MoveSelectedLayer {p.X} {p.Y}");
 
             SelectedLayer.MoveLayer(p);
+
+            if (CompositionProject != null)
+            {
+                CompositionProject.IsModified = true;
+            }
         }
 
         public void RotateSelectedLayer()
@@ -162,6 +197,11 @@ namespace AppComposer.ViewModels.Composition
             }
 
             SelectedLayer.RotateLayer();
+
+            if (CompositionProject != null)
+            {
+                CompositionProject.IsModified = true;
+            }
         }
 
 #endregion
