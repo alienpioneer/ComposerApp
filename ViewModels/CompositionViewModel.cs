@@ -4,11 +4,11 @@ using AppComposer.Models;
 using AppComposer.Models.Layers;
 using AppComposer.Services;
 using AppComposer.ViewModels.Composition;
+using AppComposer.Views;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 
@@ -17,6 +17,7 @@ namespace AppComposer.ViewModels
     public class CompositionViewModel : ViewModelBase
     {
         private readonly MainWindowViewModel m_mainWindowViewModel;
+        private readonly TextDialogViewModel TextDialogVM;
 
         public ICommand ShowHomeCommand { get; }
         public ICommand NewCompositionCommand { get; }
@@ -35,6 +36,7 @@ namespace AppComposer.ViewModels
         public CanvasSettings CurrentCanvasSettings { get; private set; }
         public ImageService ImageService { get; }
         public CompositionService CompositionService { get; }
+        
 
         public CompositionViewModel(MainWindowViewModel mainWindowViewModel)
         {
@@ -43,8 +45,8 @@ namespace AppComposer.ViewModels
             CurrentCanvasSettings = new CanvasSettings();
             ImageService = new ImageService();
             CompositionService = new CompositionService(ImageService);
-
             CompositionPageVM = new CompositionPageViewModel(CurrentCanvasSettings);
+            TextDialogVM = new();
 
             CurrentCanvasSettings.Width = ConfigurationService.Instance.CanvasWidth;
             CurrentCanvasSettings.Height = ConfigurationService.Instance.CanvasHeight;
@@ -67,7 +69,6 @@ namespace AppComposer.ViewModels
             RotateLayerCommand = new RelayCommand(RotateLayer, () => CompositionPageVM != null);
             ResetLayerCommand = new RelayCommand(ResetLayer, () => CompositionPageVM != null);
         }
-
 
 #region Internals
 
@@ -93,7 +94,7 @@ namespace AppComposer.ViewModels
 
         #endregion
 
- #region LoadingSaving
+#region LoadingSaving
 
         private void NewComposition()
         {
@@ -215,8 +216,9 @@ namespace AppComposer.ViewModels
             }
         }
 
-#endregion
+        #endregion
 
+#region Layers
 
         private void AddImageLayer()
         {
@@ -235,10 +237,14 @@ namespace AppComposer.ViewModels
         {
             Debug.WriteLine("Add text layer");
 
-            // TODO Text dialog Test only
-            TextLayer layer = new("Test","Cambria",32);
-            layer.PosX = 0;
-            layer.PosY = 0;
+            var dialog = new TextDialog(TextDialogVM);
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            TextLayer layer = new(TextDialogVM.Text, TextDialogVM.SelectedFont, (int)TextDialogVM.FontSize);
             CompositionPageVM.AddTextLayer(layer);
         }
 
@@ -304,5 +310,8 @@ namespace AppComposer.ViewModels
             Debug.WriteLine("Reset layer");
             CompositionPageVM.ResetSelectedLayer();
         }
+
+#endregion
+
     }
 }
