@@ -68,6 +68,9 @@ namespace AppComposer.ViewModels
             ResetLayerCommand = new RelayCommand(ResetLayer, () => CompositionPageVM != null);
         }
 
+
+#region Internals
+
         private bool ConfirmDiscardChanges()
         {
             if (CompositionPageVM.CompositionProject != null &&
@@ -87,6 +90,10 @@ namespace AppComposer.ViewModels
 
             return true;
         }
+
+        #endregion
+
+ #region LoadingSaving
 
         private void NewComposition()
         {
@@ -116,32 +123,34 @@ namespace AppComposer.ViewModels
                 Title = "Load Project"
             };
 
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == false)
             {
-                string projectFile = dialog.FileName;
-                string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
+                return;
+            }
 
-                //Debug.WriteLine($"Project folder {projectFolder}");
+            string projectFile = dialog.FileName;
+            string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
 
-                using (var temp = new TemporaryProjectDirectory())
+            //Debug.WriteLine($"Project folder {projectFolder}");
+
+            using (var temp = new TemporaryProjectDirectory())
+            {
+                Debug.WriteLine($"Extracting project file {projectFile} to {temp.Path}");
+
+                ZipFile.ExtractToDirectory(projectFile, temp.Path);
+
+                Debug.WriteLine($"Loading project from {temp.Path}");
+
+                CompositionProject? project = CompositionService.LoadCompositionProject(Path.Combine(temp.Path, projectName));
+
+                if (project != null)
                 {
-                    Debug.WriteLine($"Extracting project file {projectFile} to {temp.Path}");
+                    CompositionPageVM.LoadProjectVM(project);
+                }
 
-                    ZipFile.ExtractToDirectory(projectFile, temp.Path);
-
-                    Debug.WriteLine($"Loading project from {temp.Path}");
-
-                    CompositionProject? project = CompositionService.LoadCompositionProject(Path.Combine(temp.Path, projectName));
-
-                    if (project != null)
-                    {
-                        CompositionPageVM.LoadProjectVM(project);
-                    }
-
-                    if (CompositionPageVM.CompositionProject != null)
-                    {
-                        CompositionPageVM.CompositionProject.IsModified = false;
-                    }
+                if (CompositionPageVM.CompositionProject != null)
+                {
+                    CompositionPageVM.CompositionProject.IsModified = false;
                 }
             }
         }
@@ -161,7 +170,6 @@ namespace AppComposer.ViewModels
 
             if (dialog.ShowDialog() == false)
             {
-                Debug.WriteLine("Internal dialog window problem while saving composition");
                 return;
             }
 
@@ -207,6 +215,9 @@ namespace AppComposer.ViewModels
             }
         }
 
+#endregion
+
+
         private void AddImageLayer()
         {
             Debug.WriteLine("Add image layer");
@@ -237,18 +248,35 @@ namespace AppComposer.ViewModels
 
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "Project files (*.json)|*.json",
+                Filter = "Composition Project (*.comp)|*.comp",
                 Title = "Load Composition Layer"
             };
 
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == false)
             {
-                CompositionLayer? layer = CompositionService.LoadCompositionLayer(dialog.FileName);
+                return;
+            }
+
+            using (var temp = new TemporaryProjectDirectory())
+            {
+                string projectFile = dialog.FileName;
+                string projectName = Path.GetFileNameWithoutExtension(dialog.FileName);
+                string tempProjectPath = Path.Combine(temp.Path, projectName);
+
+                Debug.WriteLine($"Extracting project file {projectFile} to {temp.Path}");
+
+                ZipFile.ExtractToDirectory(projectFile, temp.Path);
+
+                CompositionLayer? layer = CompositionService.LoadCompositionLayer(Path.Combine(tempProjectPath, "project.json"));
 
                 if (layer != null)
                 {
                     Debug.WriteLine($"Loaded composition layer from {dialog.FileName}");
                     CompositionPageVM.AddCompositionLayer(layer);
+                }
+                else
+                {
+                    Debug.WriteLine($"Failed to load composition layer from {dialog.FileName}");
                 }
             }
         }
