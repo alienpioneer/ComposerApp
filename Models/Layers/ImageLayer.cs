@@ -12,6 +12,8 @@ namespace AppComposer.Models.Layers
         public string ImagePath { get; set; } = "";
         public string PreviewPath { get; set; } = "";
 
+        public bool TransparentWhite { get; set; } = false;
+
         [JsonIgnore]
         public Mat Bitmap { get; set; } = new();
         [JsonIgnore]

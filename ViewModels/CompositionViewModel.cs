@@ -228,7 +228,7 @@ namespace AppComposer.ViewModels
 
             if (dlg.ShowDialog() == true)
             {
-                ImageLayer layer = ImageService.LoadImageBitmapToLayer(dlg.FileName);
+                ImageLayer layer = ImageService.LoadImageLayerBitmap(dlg.FileName);
                 CompositionPageVM.AddImageLayer(layer);
             }
         }
