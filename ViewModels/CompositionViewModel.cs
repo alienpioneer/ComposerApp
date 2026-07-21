@@ -178,6 +178,12 @@ namespace AppComposer.ViewModels
             {
                 CompositionService.SaveCompositionProject(CompositionPageVM.CompositionProject, dialog.FileName, temp.Path);
 
+                if (File.Exists(dialog.FileName))
+                {
+                    // Delete existing file
+                    File.Delete(dialog.FileName); 
+                }
+
                 ZipFile.CreateFromDirectory(temp.Path, dialog.FileName, CompressionLevel.Optimal, false); 
             }
 

@@ -1,12 +1,10 @@
 ﻿using AppComposer.Models;
 using AppComposer.Models.Layers;
 using OpenCvSharp;
-using OpenCvSharp.WpfExtensions;
 using SkiaSharp;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace AppComposer.Services
 {
@@ -162,6 +160,7 @@ namespace AppComposer.Services
                     Cv2.WarpAffine(imageLayer.Bitmap, transformed, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height),
                         InterpolationFlags.Linear, BorderTypes.Constant, Scalar.White);
 
+                    //TODO Check transparency and mask problem. Do not overfill with white if the image is not transparent.
                     if (imageLayer.TransparentWhite)
                     {
                         using Mat mask = new();
@@ -171,7 +170,10 @@ namespace AppComposer.Services
                     }
                     else
                     {
-                        transformed.CopyTo(rendered);
+                        using Mat originalMask = Mat.Ones(imageLayer.Bitmap.Rows, imageLayer.Bitmap.Cols, MatType.CV_8UC1);
+                        using Mat warpedMask = new();
+                        Cv2.WarpAffine(originalMask, warpedMask, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height), InterpolationFlags.Linear, BorderTypes.Constant, Scalar.Black);
+                        transformed.CopyTo(rendered, warpedMask);
                     }
                 }
                 else if (layer is TextLayer textLayer)
@@ -260,7 +262,10 @@ namespace AppComposer.Services
                     }
                     else
                     {
-                        transformed.CopyTo(rendered);
+                        using Mat originalMask = Mat.Ones(compLayer.Bitmap.Rows, compLayer.Bitmap.Cols, MatType.CV_8UC1);
+                        using Mat warpedMask = new();
+                        Cv2.WarpAffine(originalMask, warpedMask, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height), InterpolationFlags.Linear, BorderTypes.Constant, Scalar.Black);
+                        transformed.CopyTo(rendered, warpedMask);
                     }
                 }
             }
