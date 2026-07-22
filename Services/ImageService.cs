@@ -223,7 +223,7 @@ namespace AppComposer.Services
                     using Mat transformed = new();
 
                     Cv2.WarpAffine(textMat, transformed, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height),
-                        InterpolationFlags.Linear, BorderTypes.Constant, Scalar.White);
+                        InterpolationFlags.Nearest, BorderTypes.Constant, Scalar.White);
 
                     // Mask the element
                     using Mat mask = new();
