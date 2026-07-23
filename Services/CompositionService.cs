@@ -44,6 +44,8 @@ namespace AppComposer.Services
             string projectRenderPath = Path.Combine(projectDirectory, compositionProject.RenderedImageName);
 
             CompositionLayer compositionLayer = new(projectJsonPath);
+            compositionLayer.TransparentWhite = ConfigurationService.Instance.UseTransparency;
+
             _imageService.LoadCompLayerBitmap(projectRenderPath, compositionLayer);
 
             return compositionLayer;
@@ -70,12 +72,15 @@ namespace AppComposer.Services
                 if (layer is ImageLayer imageLayer)
                 {
                     string imagePath = Path.Combine(projectDirectory, imageLayer.PreviewPath);
+                    imageLayer.TransparentWhite = ConfigurationService.Instance.UseTransparency;
 
                     _imageService.LoadImageLayerBitmap(imagePath, imageLayer);
                 }
                 else if (layer is CompositionLayer compositionLayer)
                 {
                     string compPreviewPath = Path.Combine(projectDirectory, compositionLayer.PreviewPath);
+                    compositionLayer.TransparentWhite = ConfigurationService.Instance.UseTransparency;
+
                     _imageService.LoadCompLayerBitmap(compPreviewPath, compositionLayer);
                 }
             }

@@ -19,6 +19,9 @@ namespace AppComposer.Services
 
         public int ImagePreviewSize { get; }
 
+        public bool UseTransparency { get; }
+        public bool AllowTextScaling { get; }
+
         public static void Initialize(string iniPath)
         {
             Instance = new ConfigurationService(iniPath);
@@ -40,8 +43,9 @@ namespace AppComposer.Services
             RulerFontSize = Int32.Parse(reader.GetValue("CANVAS", "RulerFontSize", "10"));
 
             ImagePreviewSize = Int32.Parse(reader.GetValue("IMAGES", "PreviewResolution", "256"));
+
+            UseTransparency = bool.Parse(reader.GetValue("OPERATIONS", "UseTransparency", "false"));
+            AllowTextScaling = bool.Parse(reader.GetValue("OPERATIONS", "AllowTextScaling", "false"));
         }
-
     }
-
 }

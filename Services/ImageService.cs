@@ -38,6 +38,7 @@ namespace AppComposer.Services
             using Mat bwImage = ConvertTo1bpp(image);
 
             ImageLayer layer = new ImageLayer(filename);
+            layer.TransparentWhite = ConfigurationService.Instance.UseTransparency;
 
             if (layer.TransparentWhite)
             {
@@ -80,7 +81,6 @@ namespace AppComposer.Services
             if (layer.TransparentWhite)
             {
                 using Mat preview = AddBWAlpha(cropped);
-
                 // Store the preview with alpha for WPF
                 layer.SetBitmap(preview.Clone());
             }
@@ -160,12 +160,10 @@ namespace AppComposer.Services
                     Cv2.WarpAffine(imageLayer.Bitmap, transformed, affineMatrix, new Size(project.CanvasSettings.Width, project.CanvasSettings.Height),
                         InterpolationFlags.Linear, BorderTypes.Constant, Scalar.White);
 
-                    //TODO Check transparency and mask problem. Do not overfill with white if the image is not transparent.
                     if (imageLayer.TransparentWhite)
                     {
                         using Mat mask = new();
                         Cv2.Compare(transformed, Scalar.Black, mask, CmpTypes.EQ);
-                        //Cv2.Threshold(transformed, mask, 250, 255, ThresholdTypes.BinaryInv);
                         transformed.CopyTo(rendered, mask);
                     }
                     else

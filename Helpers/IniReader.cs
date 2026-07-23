@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace AppComposer.Helpers
@@ -17,8 +18,11 @@ namespace AppComposer.Helpers
         private void Load(string filePath)
         {
             if (!File.Exists(filePath))
+            {
+                Debug.WriteLine("INI file not found.");
                 throw new FileNotFoundException("INI file not found.", filePath);
-
+            }
+                
             var currentSection = string.Empty;
 
             foreach (var line in File.ReadAllLines(filePath))

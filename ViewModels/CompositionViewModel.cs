@@ -235,6 +235,7 @@ namespace AppComposer.ViewModels
             if (dlg.ShowDialog() == true)
             {
                 ImageLayer layer = ImageService.LoadImageLayerBitmap(dlg.FileName);
+
                 CompositionPageVM.AddImageLayer(layer);
             }
         }
@@ -283,7 +284,8 @@ namespace AppComposer.ViewModels
 
                 if (layer != null)
                 {
-                    Debug.WriteLine($"Loaded composition layer from {dialog.FileName}");
+                    Debug.WriteLine($"Loaded composition layer from {dialog.FileName}");    
+
                     CompositionPageVM.AddCompositionLayer(layer);
                 }
                 else
