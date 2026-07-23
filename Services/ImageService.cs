@@ -277,8 +277,8 @@ namespace AppComposer.Services
             //Save preview
             Mat preview = new();
 
-            // TODO Get Preview Size from project settings
-            double scale = Math.Min(256.0 / rendered.Width, 256.0 / rendered.Height);
+            double previewSize  = ConfigurationService.Instance.ImagePreviewSize;
+            double scale = Math.Min(previewSize / rendered.Width, previewSize / rendered.Height);
 
             Cv2.Resize(rendered, preview, new Size(0, 0), scale, scale, InterpolationFlags.Area);
 
